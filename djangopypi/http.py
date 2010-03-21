@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.files.uploadedfile import TemporaryUploadedFile
 from django.utils.datastructures import MultiValueDict
 from django.contrib.auth import authenticate
 
@@ -38,8 +38,11 @@ def parse_distutils_request(request):
             continue
         content = part[len("\n".join(item[0:2]))+2:len(part)-1]
         if "filename" in headers:
-            file = SimpleUploadedFile(headers["filename"], content,
-                    content_type="application/gzip")
+            file = TemporaryUploadedFile(name=headers["filename"],
+                                         size=len(content),
+                                         content_type="application/gzip")
+            file.write(content)
+            file.seek(0)
             files["distribution"] = [file]
         elif headers["name"] in post_data:
             post_data[headers["name"]].append(content)
