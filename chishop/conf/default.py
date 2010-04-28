@@ -108,4 +108,5 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'registration',
     'djangopypi',
+    'south',
 )
