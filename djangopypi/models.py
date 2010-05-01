@@ -43,16 +43,16 @@ DIST_FILE_TYPES = (
 
 PYTHON_VERSIONS = (
     ('any','Any i.e. pure python'),
-    '2.1',
-    '2.2',
-    '2.3',
-    '2.4',
-    '2.5',
-    '2.6',
-    '2.7',
-    '3.0',
-    '3.1',
-    '3.2',
+    ('2.1','2.1'),
+    ('2.2','2.2'),
+    ('2.3','2.3'),
+    ('2.4','2.4'),
+    ('2.5','2.5'),
+    ('2.6','2.6'),
+    ('2.7','2.7'),
+    ('3.0','3.0'),
+    ('3.1','3.1'),
+    ('3.2','3.2'),
 )
 
 UPLOAD_TO = getattr(settings,
@@ -99,28 +99,10 @@ class Project(models.Model):
             return None
 
 class Release(models.Model):
-    project = models.ForeignKey(Project, related_name="releases", primary_key=True)
-    version = models.CharField(max_length=128, primary_key=True)
-    metadata_version = models.CharField(max_length=64, default=1.0)
-    
-    author = models.CharField(max_length=128, blank=True)
-    author_email = models.CharField(max_length=255, blank=True)
-    maintainer = models.CharField(max_length=128, blank=True)
-    maintainer_email = models.CharField(max_length=255, blank=True)
-    
-    home_page = models.URLField(verify_exists=False, blank=True, null=True)
-    license = models.TextField(blank=True)
-    summary = models.CharField(max_length=255, blank=True)
-    description = models.TextField(blank=True)
-    keywords = models.CharField(max_length=255, blank=True)
-    platform = models.TextField(blank=True)
-    download_url = models.CharField(max_length=200, blank=True, null=True)
-    hidden = models.BooleanField(default=False, blank=False)
-    requires = models.TextField(blank=True)
-    provides = models.TextField(blank=True)
-    obsoletes = models.TextField(blank=True)
-    classifiers = models.ManyToManyField(Classifier)
-    
+    project = models.ForeignKey(Project, related_name="releases")
+    version = models.CharField(max_length=128)
+    metadata_version = models.CharField(max_length=64, default='1.0')
+    package_info = models.TextField(blank=False)
     created = models.DateTimeField(auto_now_add=True, editable=False)
     
     class Meta:
@@ -129,37 +111,17 @@ class Release(models.Model):
         unique_together = ("project", "version")
 
     def __unicode__(self):
-        return u"%s (%s)" % (self.release_name, self.platform)
-
-    @property
-    def type(self):
-        dist_file_types = {
-            'sdist':'Source',
-            'bdist_dumb':'"dumb" binary',
-            'bdist_rpm':'RPM',
-            'bdist_wininst':'MS Windows installer',
-            'bdist_egg':'Python Egg',
-            'bdist_dmg':'OS X Disk Image'}
-        return dist_file_types.get(self.filetype, self.filetype)
-
-    @property
-    def filename(self):
-        return os.path.basename(self.distribution.name)
-
+        return self.release_name
+    
     @property
     def release_name(self):
         return u"%s-%s" % (self.project.name, self.version)
-
-    @property
-    def path(self):
-        return self.distribution.name
-
+    
     @models.permalink
     def get_absolute_url(self):
-        return ('djangopypi-show_version', (), {'dist_name': self.project, 'version': self.version})
+        return ('djangopypi-show_version', (), {'project': self.project.name,
+                                                'version': self.version})
 
-    def get_dl_url(self):
-        return "%s#md5=%s" % (self.distribution.url, self.md5_digest)
 
 class File(models.Model):
     release = models.ForeignKey(Release, related_name="files")
@@ -171,6 +133,20 @@ class File(models.Model):
                                  choices=PYTHON_VERSIONS)
     comment = models.CharField(max_length=255, blank=True)
     signature = models.TextField(blank=True)
+    created = models.DateTimeField(auto_now_add=True, editable=False)
+    uploader = models.ForeignKey(User)
+    
+    @property
+    def filename(self):
+        return os.path.basename(self.distribution.name)
+    
+    @property
+    def path(self):
+        return self.distribution.name
+    
+    def get_absolute_url(self):
+        return "%s#md5=%s" % (self.distribution.url, self.md5_digest)
+
     
     class Meta:
         verbose_name = _(u"file")
@@ -179,3 +155,12 @@ class File(models.Model):
     
     def __unicode__(self):
         return self.distribution.name
+
+class Review(models.Model):
+    release = models.ForeignKey(Release, related_name="reviews")
+    rating = models.PositiveSmallIntegerField(blank=True)
+    comment = models.TextField(blank=True)
+    
+    class Meta:
+        verbose_name = _(u'release review')
+        verbose_name_plural = _(u'release reviews')
