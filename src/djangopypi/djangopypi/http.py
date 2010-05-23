@@ -18,6 +18,9 @@ class HttpResponseUnauthorized(HttpResponse):
 
 def parse_distutils_request(request):
     raw_post_data = request.raw_post_data
+    print str(raw_post_data)
+    print str(request.POST)
+    print str(request.FILES)
     sep = raw_post_data.splitlines()[1]
     items = raw_post_data.split(sep)
     post_data = {}

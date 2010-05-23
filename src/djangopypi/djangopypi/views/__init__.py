@@ -24,6 +24,7 @@ ACTIONS = {
 
 def simple(request, template_name="djangopypi/simple.html"):
     if request.method == "POST":
+        print str(request.POST)
         post_data, files = parse_distutils_request(request)
         action_name = post_data.get(":action")
         if action_name not in ACTIONS:
