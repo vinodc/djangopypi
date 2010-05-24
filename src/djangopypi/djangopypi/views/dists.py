@@ -8,7 +8,7 @@ from django.contrib.auth import login
 
 from djangopypi.http import login_basic_auth, HttpResponseUnauthorized
 from djangopypi.forms import ProjectForm, ReleaseForm
-from djangopypi.models import Project, Release, Classifier, UPLOAD_TO
+from djangopypi.models import Project, Release, Classifier
 
 ALREADY_EXISTS_FMT = _(
     "A file named '%s' already exists for %s. Please create a new release.")

@@ -4,59 +4,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 
-OS_NAMES = (
-        ("aix", "AIX"),
-        ("beos", "BeOS"),
-        ("debian", "Debian Linux"),
-        ("dos", "DOS"),
-        ("freebsd", "FreeBSD"),
-        ("hpux", "HP/UX"),
-        ("mac", "Mac System x."),
-        ("macos", "MacOS X"),
-        ("mandrake", "Mandrake Linux"),
-        ("netbsd", "NetBSD"),
-        ("openbsd", "OpenBSD"),
-        ("qnx", "QNX"),
-        ("redhat", "RedHat Linux"),
-        ("solaris", "SUN Solaris"),
-        ("suse", "SuSE Linux"),
-        ("yellowdog", "Yellow Dog Linux"),
-)
 
-ARCHITECTURES = (
-    ("alpha", "Alpha"),
-    ("hppa", "HPPA"),
-    ("ix86", "Intel"),
-    ("powerpc", "PowerPC"),
-    ("sparc", "Sparc"),
-    ("ultrasparc", "UltraSparc"),
-)
-
-DIST_FILE_TYPES = (
-    ('sdist','Source'),
-    ('bdist_dumb','"dumb" binary'),
-    ('bdist_rpm','RPM'),
-    ('bdist_wininst','MS Windows installer'),
-    ('bdist_egg','Python Egg'),
-    ('bdist_dmg','OS X Disk Image'),
-)
-
-PYTHON_VERSIONS = (
-    ('any','Any i.e. pure python'),
-    ('2.1','2.1'),
-    ('2.2','2.2'),
-    ('2.3','2.3'),
-    ('2.4','2.4'),
-    ('2.5','2.5'),
-    ('2.6','2.6'),
-    ('2.7','2.7'),
-    ('3.0','3.0'),
-    ('3.1','3.1'),
-    ('3.2','3.2'),
-)
-
-UPLOAD_TO = getattr(settings,
-    "DJANGOPYPI_RELEASE_UPLOAD_TO", 'dist')
 
 class Classifier(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -125,12 +73,12 @@ class Release(models.Model):
 
 class File(models.Model):
     release = models.ForeignKey(Release, related_name="files")
-    distribution = models.FileField(upload_to=UPLOAD_TO)
+    distribution = models.FileField(upload_to=settings.DJANGOPYPI_RELEASE_UPLOAD_TO)
     md5_digest = models.CharField(max_length=32, blank=True)
-    filetype = models.CharField(max_length=255, blank=False,
-                                choices=DIST_FILE_TYPES)
-    pyversion = models.CharField(max_length=255, blank=True,
-                                 choices=PYTHON_VERSIONS)
+    filetype = models.CharField(max_length=32, blank=False,
+                                choices=settings.DJANGOPYPI_DIST_FILE_TYPES)
+    pyversion = models.CharField(max_length=16, blank=True,
+                                 choices=settings.DJANGOPYPI_PYTHON_VERSIONS)
     comment = models.CharField(max_length=255, blank=True)
     signature = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True, editable=False)

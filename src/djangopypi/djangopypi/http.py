@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.core.files.uploadedfile import TemporaryUploadedFile
 from django.utils.datastructures import MultiValueDict
 from django.contrib.auth import authenticate
@@ -17,48 +17,63 @@ class HttpResponseUnauthorized(HttpResponse):
 
 
 def parse_distutils_request(request):
-    raw_post_data = request.raw_post_data
-    print str(raw_post_data)
-    print str(request.POST)
-    print str(request.FILES)
-    sep = raw_post_data.splitlines()[1]
-    items = raw_post_data.split(sep)
-    post_data = {}
-    files = {}
-    for part in filter(lambda e: not e.isspace(), items):
-        item = part.splitlines()
-        if len(item) < 2:
+    """ This is being used because the built in request parser that Django uses,
+    django.http.multipartparser.MultiPartParser is interperting the POST data
+    incorrectly and/or the post data coming from distutils is invalid.
+    
+    One portion of this is the end marker: \r\n\r\n (what Django expects) 
+    versus \n\n (what distutils is sending). 
+    """
+    
+    try:
+        sep = request.raw_post_data.splitlines()[1]
+    except:
+        raise ValueError('Invalid post data')
+    
+    
+    request.POST = QueryDict('',mutable=True)
+    for part in filter(lambda e: e.strip(), request.raw_post_data.split(sep)):
+        try:
+            header, content = part.lstrip().split('\n',1)
+        except Exception, e:
             continue
-        header = item[1].replace("Content-Disposition: form-data; ", "")
-        kvpairs = header.split(";")
-        headers = {}
-        for kvpair in kvpairs:
-            if not kvpair:
-                continue
-            key, value = kvpair.split("=")
-            headers[key] = value.strip('"')
+        
+        if content.startswith('\n'):
+            content = content[1:]
+        
+        if content.endswith('\n'):
+            content = content[:-1]
+        
+        headers = parse_header(header)
+        
         if "name" not in headers:
             continue
-        content = part[len("\n".join(item[0:2]))+2:len(part)-1]
+        
         if "filename" in headers:
             file = TemporaryUploadedFile(name=headers["filename"],
                                          size=len(content),
                                          content_type="application/gzip")
             file.write(content)
             file.seek(0)
-            files["distribution"] = [file]
-        elif headers["name"] in post_data:
-            post_data[headers["name"]].append(content)
+            request.FILES.appendlist('distribution', file)
         else:
-            # Distutils sends UNKNOWN for empty fields (e.g platform)
-            # [russell.sim@gmail.com]
-            if content == 'UNKNOWN':
-                post_data[headers["name"]] = [None]
-            else:
-                post_data[headers["name"]] = [content]
+            request.POST.appendlist(headers["name"],content)
+    return
 
-    return MultiValueDict(post_data), MultiValueDict(files)
-
+def parse_header(header):
+    headers = {}
+    print 'parsing %s' % (header,)
+    for kvpair in filter(lambda p: p,
+                         map(lambda p: p.strip(),
+                             header.split(';'))):
+        try:
+            key, value = kvpair.split("=",1)
+        except ValueError:
+            continue
+        headers[key.strip()] = value.strip('"')
+    
+    return headers
+    
 
 def login_basic_auth(request):
     authentication = request.META.get("HTTP_AUTHORIZATION")

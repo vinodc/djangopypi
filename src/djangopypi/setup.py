@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import os
 
 try:
@@ -17,8 +15,7 @@ setup(name='djangopypi',
       version=version,
       description="A Django application that emulates the Python Package Index.",
       long_description=open(os.path.join("docs", "README")).read() + "\n" +
-                       open(os.path.join("docs", "Changelog")).read() + "\n\n" +
-                       open(os.path.join("docs", "AUTHORS")).read(),
+                       open(os.path.join("docs", "Changelog")).read(),
       classifiers=[
         "Framework :: Django",
         "Development Status :: 3 - Alpha",
@@ -47,6 +44,5 @@ setup(name='djangopypi',
       install_requires=[
           'setuptools',
           'django>=1.0',
-          'docutils',
-          ],
+          'docutils',],
       )

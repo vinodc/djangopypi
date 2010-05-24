@@ -1,4 +1,6 @@
-from django.http import Http404
+from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
@@ -10,31 +12,26 @@ from djangopypi.views.users import create_user
 from djangopypi.views.search import search
 
 
-ACTIONS = {
-    # file_upload is the action used with distutils ``sdist`` command.
-    "file_upload": register_or_upload,
 
-    # submit is the :action used with distutils ``register`` command.
-    "submit": register_or_upload,
-
-    # user is the action used when registering a new user
-    "user": create_user,
-}
+def root(request, root_redirect=None, **kwargs):
+    if request.method != 'POST':
+        if root_redirect is None:
+            root_redirect = reverse(settings.DJANGOPYPI_SIMPLE_VIEW)
+        return HttpResponseRedirect(root_redirect)
+   
+    parse_distutils_request(request)
+    
+    action = request.POST.get(':action','')
+    
+    if not action in settings.DJANGOPYPI_ACTION_VIEWS:
+        return HttpResponseNotImplemented("The action %s is not implemented" % (action,))
+    
+    return settings.DJANGOPYPI_ACTION_VIEWS(request, **kwargs)
 
 
 def simple(request, template_name="djangopypi/simple.html"):
-    if request.method == "POST":
-        print str(request.POST)
-        post_data, files = parse_distutils_request(request)
-        action_name = post_data.get(":action")
-        if action_name not in ACTIONS:
-            return HttpResponseNotImplemented(
-                "The action %s is not implemented" % action_name)
-        return ACTIONS[action_name](request, post_data, files)
-
-    dists = Project.objects.all().order_by("name")
     context = RequestContext(request, {
-        "dists": dists,
+        "dists": Project.objects.all().order_by("name"),
         "title": 'Package Index',
     })
 

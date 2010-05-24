@@ -13,7 +13,7 @@ urlpatterns = patterns("djangopypi.views",
     url(r'^simple/(?P<dist_name>[\w\d_\.\-]+)/$', "show_links",
         name="djangopypi-show_links"),
 
-    url(r'^$', "simple", {'template_name': 'djangopypi/pypi.html'},
+    url(r'^$', "root", {'template_name': 'djangopypi/pypi.html'},
         name="djangopypi-pypi"),
 
     url(r'^(?P<dist_name>[\w\d_\.\-]+)/$', "show_links",
