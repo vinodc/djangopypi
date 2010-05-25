@@ -2,9 +2,7 @@
 from django.conf.urls.defaults import patterns, url, include
 
 urlpatterns = patterns("djangopypi.views",
-    # Simple PyPI
-    url(r'^simple/$', "simple",
-        name="djangopypi-simple"),
+    url(r'^pypi/$', "index", name="djangopypi-index"),
 
     url(r'^simple/(?P<dist_name>[\w\d_\.\-]+)/(?P<version>[\w\.\d\-_]+)/$',
         "show_version",
@@ -13,8 +11,7 @@ urlpatterns = patterns("djangopypi.views",
     url(r'^simple/(?P<dist_name>[\w\d_\.\-]+)/$', "show_links",
         name="djangopypi-show_links"),
 
-    url(r'^$', "root", {'template_name': 'djangopypi/pypi.html'},
-        name="djangopypi-pypi"),
+    url(r'^$', "root", name="djangopypi-root"),
 
     url(r'^(?P<dist_name>[\w\d_\.\-]+)/$', "show_links",
         {'template_name': 'djangopypi/pypi_show_links.html'},

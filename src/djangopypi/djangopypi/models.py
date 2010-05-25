@@ -2,6 +2,7 @@ import os
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.utils import simplejson as json
 from django.contrib.auth.models import User
 
 
@@ -21,8 +22,10 @@ class Project(models.Model):
     name = models.CharField(max_length=255, unique=True, primary_key=True)
     auto_hide = models.BooleanField(default=True, blank=False)
     allow_comments = models.BooleanField(default=True, blank=False)
-    owners = models.ManyToManyField(User, related_name="projects_owned")
-    maintainers = models.ManyToManyField(User, related_name="projects_maintained")
+    owners = models.ManyToManyField(User, blank=True,
+                                    related_name="projects_owned")
+    maintainers = models.ManyToManyField(User, blank=True,
+                                         related_name="projects_maintained")
     
     class Meta:
         verbose_name = _(u"project")
@@ -38,7 +41,21 @@ class Project(models.Model):
     @models.permalink
     def get_pypi_absolute_url(self):
         return ('djangopypi-pypi_show_links', (), {'dist_name': self.name})
-
+    
+    @property
+    def description(self):
+        latest = self.latest
+        if latest:
+            return latest.description
+        return u''
+    
+    @property
+    def latest(self):
+        try:
+            return self.releases.latest()
+        except Release.DoesNotExist:
+            return None
+    
     def get_release(self, version):
         """Return the release object for version, or None"""
         try:
@@ -57,6 +74,8 @@ class Release(models.Model):
         verbose_name = _(u"release")
         verbose_name_plural = _(u"releases")
         unique_together = ("project", "version")
+        get_latest_by = 'created'
+        ordering = ['-created']
 
     def __unicode__(self):
         return self.release_name
@@ -64,6 +83,29 @@ class Release(models.Model):
     @property
     def release_name(self):
         return u"%s-%s" % (self.project.name, self.version)
+    
+    @property
+    def parsed_package_info(self):
+        if not hasattr(self,'_parsed_package_info'):
+            try:
+                self._parsed_package_info = json.loads(self.package_info)
+            except Exception, e:
+                print str(e)
+                self._parsed_package_info = {}
+        return self._parsed_package_info
+    
+    @property
+    def description(self):
+        return self.parsed_package_info.get('description',u'')
+    
+    def save(self, *args, **kwargs):
+        if hasattr(self,'_parsed_package_info'):
+            try:
+                self.package_info = json.dumps(self._parsed_package_info)
+                delattr(self,'_parsed_package_info')
+            except Exception, e:
+                print str(e)
+        return super(Release, self).save(*args, **kwargs)
     
     @models.permalink
     def get_absolute_url(self):

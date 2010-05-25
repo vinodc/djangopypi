@@ -3,6 +3,9 @@ from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.views.generic import list_detail
+
+
 
 from djangopypi.models import Project, Release
 from djangopypi.http import HttpResponseNotImplemented
@@ -13,29 +16,26 @@ from djangopypi.views.search import search
 
 
 
-def root(request, root_redirect=None, **kwargs):
-    if request.method != 'POST':
-        if root_redirect is None:
-            root_redirect = reverse(settings.DJANGOPYPI_SIMPLE_VIEW)
-        return HttpResponseRedirect(root_redirect)
-   
-    parse_distutils_request(request)
+def root(request, fallback_view=None, **kwargs):
+    """ Root view of the package index, handle incoming actions from distutils
+    or redirect to a more user friendly view """
     
+    if request.method != 'POST':
+        if fallback_view is None:
+            fallback_view = settings.DJANGOPYPI_FALLBACK_VIEW
+        return fallback_view(request, **kwargs)
+    
+    parse_distutils_request(request)
+    print str(request.POST)
     action = request.POST.get(':action','')
     
     if not action in settings.DJANGOPYPI_ACTION_VIEWS:
+        print 'unknown action: %s' % (action,)
         return HttpResponseNotImplemented("The action %s is not implemented" % (action,))
     
-    return settings.DJANGOPYPI_ACTION_VIEWS(request, **kwargs)
+    return settings.DJANGOPYPI_ACTION_VIEWS[action](request, **kwargs)
 
 
-def simple(request, template_name="djangopypi/simple.html"):
-    context = RequestContext(request, {
-        "dists": Project.objects.all().order_by("name"),
-        "title": 'Package Index',
-    })
-
-    return render_to_response(template_name, context_instance=context)
 
 
 def show_links(request, dist_name,

@@ -65,8 +65,9 @@ if not hasattr(settings,'DJANGOPYPI_PYTHON_VERSIONS'):
         ('3.2','3.2'),
     )
 
-if not hasattr(settings, 'DJANGOPYPI_SIMPLE_VIEW'):
-    settings.DJANGOPYPI_SIMPLE_VIEW = 'djangopypi.views.simple'
+if not hasattr(settings, 'DJANGOPYPI_FALLBACK_VIEW'):
+    from djangopypi import views 
+    settings.DJANGOPYPI_FALLBACK_VIEW = views.index
 
 if not hasattr(settings,'DJANGOPYPI_ACTION_VIEWS'):
     from djangopypi.views.dists import register_or_upload
@@ -76,5 +77,7 @@ if not hasattr(settings,'DJANGOPYPI_ACTION_VIEWS'):
         "file_upload": register_or_upload, #``sdist`` command
         "submit": register_or_upload, #``register`` command
         "user": create_user, # registering a user
+        
+        
     }
     
