@@ -98,6 +98,9 @@ class Migration(SchemaMigration):
 
         # Adding field 'Release.package_info'
         db.add_column('djangopypi_release', 'package_info', self.gf('django.db.models.fields.TextField')(default=''), keep_default=False)
+        
+        # Adding field 'Release.hidden'
+        db.add_column('djangopypi_release', 'hidden', self.gf('django.db.models.fields.BooleanField')(default=False, blank=True), keep_default=False)
 
         # Removing unique constraint on 'Release', fields ['project', 'platform', 'distribution', 'version', 'pyversion']
         db.delete_unique('djangopypi_release', ['project_id', 'platform', 'distribution', 'version', 'pyversion'])
@@ -199,6 +202,9 @@ class Migration(SchemaMigration):
 
         # Deleting field 'Release.package_info'
         db.delete_column('djangopypi_release', 'package_info')
+        
+        # Deleting field 'Release.package_info'
+        db.delete_column('djangopypi_release', 'hidden')
 
         # Adding unique constraint on 'Release', fields ['project', 'platform', 'distribution', 'version', 'pyversion']
         db.create_unique('djangopypi_release', ['project_id', 'platform', 'distribution', 'version', 'pyversion'])
@@ -276,6 +282,7 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'metadata_version': ('django.db.models.fields.CharField', [], {'default': "'1.0'", 'max_length': '64'}),
             'package_info': ('django.db.models.fields.TextField', [], {}),
+            'hidden': ('django.db.models.fields.BooleanField', [], {'default': 'True', 'blank': 'True'}),
             'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'releases'", 'to': "orm['djangopypi.Project']"}),
             'version': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },

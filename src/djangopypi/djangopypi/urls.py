@@ -17,5 +17,12 @@ urlpatterns = patterns("djangopypi.views",
         {'template_name': 'djangopypi/pypi_show_links.html'},
         name="djangopypi-pypi_show_links"),
     
-    url(r'^search','search',name='djangopypi-search')
+    url(r'^search','search',name='djangopypi-search'),
+    
+    url(r'^(?P<project>[\w\d_\.\-]+)/$','projects.details',
+        name='djangopypi-project'),
+    
+    url(r'^(?P<project>[\w\d_\.\-]+)/(?P<release>[\w\d_\.\-]+)/$',
+        'releases.details',name='djangopypi-release'),
+    
 )

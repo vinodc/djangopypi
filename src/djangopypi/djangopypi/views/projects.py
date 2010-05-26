@@ -5,17 +5,16 @@ from django.views.generic import list_detail
 from django.shortcuts import get_object_or_404
 
 
-from djangopypi.models import Project, Release
-from djangopypi.views import release as release_views
+from djangopypi.models import Project
 
 
 
 def index(request, **kwargs):
     kwargs.setdefault('template_object_name','project')
-    return list_detail.object_list(request, queryset=Project.objects.all(),
-                                   **kwargs)
+    kwargs.setdefault('queryset',Project.objects.all())
+    return list_detail.object_list(request, **kwargs)
 
 def details(request, project, **kwargs):
     kwargs.setdefault('template_object_name','project')
-    return list_detail.object_detail(request, queryset=Project.objects.all(),
-                                     object_id=project, **kwargs)
+    kwargs.setdefault('queryset',Project.objects.all())
+    return list_detail.object_detail(request, object_id=project, **kwargs)

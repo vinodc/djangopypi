@@ -68,7 +68,9 @@ class Release(models.Model):
     version = models.CharField(max_length=128)
     metadata_version = models.CharField(max_length=64, default='1.0')
     package_info = models.TextField(blank=False)
+    hidden = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True, editable=False)
+    
     
     class Meta:
         verbose_name = _(u"release")

@@ -66,11 +66,11 @@ if not hasattr(settings,'DJANGOPYPI_PYTHON_VERSIONS'):
     )
 
 if not hasattr(settings, 'DJANGOPYPI_FALLBACK_VIEW'):
-    from djangopypi import views 
-    settings.DJANGOPYPI_FALLBACK_VIEW = views.index
+    from djangopypi.views import releases 
+    settings.DJANGOPYPI_FALLBACK_VIEW = releases.index
 
 if not hasattr(settings,'DJANGOPYPI_ACTION_VIEWS'):
-    from djangopypi.views.dists import register_or_upload
+    from djangopypi.views.distutils import register_or_upload
     from djangopypi.views.users import create_user
     
     settings.DJANGOPYPI_ACTION_VIEWS = {
