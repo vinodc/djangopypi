@@ -3,6 +3,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.utils import simplejson as json
+from django.utils.datastructures import MultiValueDict
 from django.contrib.auth.models import User
 
 
@@ -90,21 +91,28 @@ class Release(models.Model):
     def parsed_package_info(self):
         if not hasattr(self,'_parsed_package_info'):
             try:
-                self._parsed_package_info = json.loads(self.package_info)
+                self._package_info = MultiValueDict()
+                self._package_info.update(json.loads(self.package_info))
             except Exception, e:
                 print str(e)
-                self._parsed_package_info = {}
-        return self._parsed_package_info
+        return self._package_info
     
-    @property
-    def description(self):
-        return self.parsed_package_info.get('description',u'')
+    def __getattr__(self, name):
+        if name in self.parsed_package_info:
+            return self.parsed_package_info[name]
+        raise AttributeError()
+    
+    def __setattr__(self, name, value):
+        if name in settings.DJANGOPYPI_METADATA_FIELDS.get(self.metadata_version,[]):
+            self.package_info[name] = value
+        else:
+            super(Release, self).__setattr__(name, value)
     
     def save(self, *args, **kwargs):
-        if hasattr(self,'_parsed_package_info'):
+        if hasattr(self,'_package_info'):
             try:
-                self.package_info = json.dumps(self._parsed_package_info)
-                delattr(self,'_parsed_package_info')
+                self.package_info = json.dumps(dict(self._package_info.iterlists()))
+                delattr(self,'_package_info')
             except Exception, e:
                 print str(e)
         return super(Release, self).save(*args, **kwargs)

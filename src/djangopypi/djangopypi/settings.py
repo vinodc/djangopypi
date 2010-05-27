@@ -77,7 +77,18 @@ if not hasattr(settings,'DJANGOPYPI_ACTION_VIEWS'):
         "file_upload": register_or_upload, #``sdist`` command
         "submit": register_or_upload, #``register`` command
         "user": create_user, # registering a user
-        
-        
     }
+
+if not hasattr(settings, 'DJANGOPYPI_METADATA_FIELDS'):
+    settings.DJANGOPYPI_METADATA_FIELDS = {
+        '1.0': ('platform','summary','description','keywords','home-page',
+                'author','author-email', 'license'),
+        '1.1': ('platform','supported-platform','summary','description',
+                'keywords','home-page','download-url','author','author-email',
+                'license','classifier','requires','provides','obsoletes',),
+        '1.2': ('platform','supported-platform','summary','description',
+                'keywords','home-page','download-url','author','author-email',
+                'maintainer','maintainer-email','license','classifier',
+                'requires-dist','provides-dist','obsoletes-dist',
+                'requires-python','requires-external','project-url')}
     

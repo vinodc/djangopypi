@@ -28,3 +28,7 @@ def details(request, project, version, **kwargs):
         
     return render_to_response(kwargs['template'], kwargs['extra_context'],
                               context_instance=RequestContext(request))
+
+def doap(request, project, version, **kwargs):
+    kwargs.setdefault('template_name','djangopypi/release_doap.xml')
+    return details(request, project, version, **kwargs)
