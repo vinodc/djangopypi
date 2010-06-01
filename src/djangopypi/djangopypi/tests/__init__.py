@@ -1,7 +1,7 @@
 import unittest
 import StringIO
 from djangopypi.views import parse_distutils_request, simple
-from djangopypi.models import Project, Classifier
+from djangopypi.models import Package, Classifier
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -104,7 +104,7 @@ class TestSearch(unittest.TestCase):
     def setUp(self):
         dummy_user = User.objects.create(username='krill', password='12345',
                                  email='krill@opera.com')
-        Project.objects.create(name='foo', license='Gnu',
+        Package.objects.create(name='foo', license='Gnu',
                                summary="The quick brown fox jumps over the lazy dog.",
                                owner=dummy_user)        
         

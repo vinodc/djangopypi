@@ -18,7 +18,7 @@ from contextlib import contextmanager
 from urlparse import urlsplit
 from setuptools.package_index import PackageIndex
 from django.contrib.auth.models import User
-from djangopypi.models import Project, Release, Classifier
+from djangopypi.models import Package, Release, Classifier
 
 
 
@@ -68,14 +68,14 @@ added"""
 
         try:
             # can't use get_or_create as that demands there be an owner
-            project = Project.objects.get(name=meta.name)
-            isnewproject = False
-        except Project.DoesNotExist:
-            project = Project(name=meta.name)
-            isnewproject = True
+            package = Package.objects.get(name=meta.name)
+            isnewpackage = False
+        except Package.DoesNotExist:
+            package = Package(name=meta.name)
+            isnewpackage = True
 
-        release = project.get_release(meta.version)
-        if not isnewproject and release and release.version == meta.version:
+        release = package.get_release(meta.version)
+        if not isnewpackage and release and release.version == meta.version:
             print "%s-%s already added" % (meta.name, meta.version)
             return
 
@@ -105,27 +105,27 @@ added"""
 
         # at this point we have metadata and an owner, can safely add it.
 
-        project.owner = owner
+        package.owner = owner
         # Some packages don't have proper licence, seems to be a problem
         # with setup.py upload. Use "UNKNOWN"
-        project.license = meta.license or "Unknown"
-        project.metadata_version = meta.metadata_version
-        project.author = meta.author
-        project.home_page = meta.home_page
-        project.download_url = meta.download_url
-        project.summary = meta.summary
-        project.description = meta.description
-        project.author_email = meta.author_email
+        package.license = meta.license or "Unknown"
+        package.metadata_version = meta.metadata_version
+        package.author = meta.author
+        package.home_page = meta.home_page
+        package.download_url = meta.download_url
+        package.summary = meta.summary
+        package.description = meta.description
+        package.author_email = meta.author_email
 
-        project.save()
+        package.save()
 
         for classifier in meta.classifiers:
-            project.classifiers.add(
+            package.classifiers.add(
                     Classifier.objects.get_or_create(name=classifier)[0])
 
         release = Release()
         release.version = meta.version
-        release.project = project
+        release.package = package
         filename = os.path.basename(path)
 
         file = File(open(path, "rb"))

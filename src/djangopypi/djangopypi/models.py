@@ -19,36 +19,25 @@ class Classifier(models.Model):
         return self.name
 
 
-class Project(models.Model):
+class Package(models.Model):
     name = models.CharField(max_length=255, unique=True, primary_key=True)
     auto_hide = models.BooleanField(default=True, blank=False)
     allow_comments = models.BooleanField(default=True, blank=False)
     owners = models.ManyToManyField(User, blank=True,
-                                    related_name="projects_owned")
+                                    related_name="packages_owned")
     maintainers = models.ManyToManyField(User, blank=True,
-                                         related_name="projects_maintained")
+                                         related_name="packages_maintained")
     
     class Meta:
-        verbose_name = _(u"project")
-        verbose_name_plural = _(u"projects")
+        verbose_name = _(u"package")
+        verbose_name_plural = _(u"packages")
 
     def __unicode__(self):
         return self.name
 
     @models.permalink
     def get_absolute_url(self):
-        return ('djangopypi-show_links', (), {'dist_name': self.name})
-
-    @models.permalink
-    def get_pypi_absolute_url(self):
-        return ('djangopypi-pypi_show_links', (), {'dist_name': self.name})
-    
-    @property
-    def description(self):
-        latest = self.latest
-        if latest:
-            return latest.description
-        return u''
+        return ('djangopypi-package-details', (), {'package': self.name})
     
     @property
     def latest(self):
@@ -65,18 +54,17 @@ class Project(models.Model):
             return None
 
 class Release(models.Model):
-    project = models.ForeignKey(Project, related_name="releases")
+    package = models.ForeignKey(Package, related_name="releases")
     version = models.CharField(max_length=128)
     metadata_version = models.CharField(max_length=64, default='1.0')
     package_info = models.TextField(blank=False)
     hidden = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True, editable=False)
     
-    
     class Meta:
         verbose_name = _(u"release")
         verbose_name_plural = _(u"releases")
-        unique_together = ("project", "version")
+        unique_together = ("package", "version")
         get_latest_by = 'created'
         ordering = ['-created']
 
@@ -85,28 +73,24 @@ class Release(models.Model):
     
     @property
     def release_name(self):
-        return u"%s-%s" % (self.project.name, self.version)
+        return u"%s-%s" % (self.package.name, self.version)
     
     @property
     def parsed_package_info(self):
         if not hasattr(self,'_parsed_package_info'):
             try:
-                self._package_info = MultiValueDict()
-                self._package_info.update(json.loads(self.package_info))
+                self._package_info = MultiValueDict(json.loads(self.package_info))
             except Exception, e:
                 print str(e)
         return self._package_info
     
-    def __getattr__(self, name):
-        if name in self.parsed_package_info:
-            return self.parsed_package_info[name]
-        raise AttributeError()
+    @property
+    def summary(self):
+        return self.parsed_package_info.get('summary',u'')
     
-    def __setattr__(self, name, value):
-        if name in settings.DJANGOPYPI_METADATA_FIELDS.get(self.metadata_version,[]):
-            self.package_info[name] = value
-        else:
-            super(Release, self).__setattr__(name, value)
+    @property
+    def description(self):
+        return self.parsed_package_info.get('description',u'')
     
     def save(self, *args, **kwargs):
         if hasattr(self,'_package_info'):
@@ -119,7 +103,7 @@ class Release(models.Model):
     
     @models.permalink
     def get_absolute_url(self):
-        return ('djangopypi-show_version', (), {'project': self.project.name,
+        return ('djangopypi-show_version', (), {'package': self.package.name,
                                                 'version': self.version})
 
 

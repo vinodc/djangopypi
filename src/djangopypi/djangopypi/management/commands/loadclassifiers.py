@@ -3,7 +3,7 @@ Management command for loading all the known classifiers from the official
 pypi, or from a file/url.
 
 Note, pypi docs says to not add classifiers that are not used in submitted
-projects. On the other hand it can be usefull to have a list of classifiers
+packages. On the other hand it can be usefull to have a list of classifiers
 to choose if you have to modify package data. Use it if you need it.
 """
 
