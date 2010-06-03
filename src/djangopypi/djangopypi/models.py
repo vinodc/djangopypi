@@ -7,6 +7,40 @@ from django.utils.datastructures import MultiValueDict
 from django.contrib.auth.models import User
 
 
+class PackageInfoField(models.Field):
+    description = u'Python Package Information Field'
+    __metaclass__ = models.SubfieldBase
+    
+    def __init__(self, *args, **kwargs):
+        kwargs['editable'] = False
+        super(PackageInfoField,self).__init__(*args, **kwargs)
+    
+    def to_python(self, value):
+        if isinstance(value, basestring):
+            if value:
+                return MultiValueDict(json.loads(self.package_info))
+            else:
+                return MultiValueDict()
+        if isinstance(value, dict):
+            return MultiValueDict(value)
+        if isinstance(value,MultiValueDict):
+            return value
+        raise ValueError('Unexpected value encountered when converting data to python')
+    
+    def get_prep_value(self, value):
+        if isinstance(value,MultiValueDict):
+            return json.dumps(dict(value.iterlists()))
+        if isinstance(value, dict):
+            return json.dumps(value)
+        if isinstance(value, basestring) or value is None:
+            return value
+        
+        raise ValueError('Unexpected value encountered when preparing for database')
+    
+    def get_internal_type(self):
+        return 'TextField'
+
+
 
 class Classifier(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -57,7 +91,7 @@ class Release(models.Model):
     package = models.ForeignKey(Package, related_name="releases")
     version = models.CharField(max_length=128)
     metadata_version = models.CharField(max_length=64, default='1.0')
-    package_info = models.TextField(blank=False)
+    package_info = PackageInfoField(blank=False)
     hidden = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True, editable=False)
     
@@ -76,30 +110,12 @@ class Release(models.Model):
         return u"%s-%s" % (self.package.name, self.version)
     
     @property
-    def parsed_package_info(self):
-        if not hasattr(self,'_parsed_package_info'):
-            try:
-                self._package_info = MultiValueDict(json.loads(self.package_info))
-            except Exception, e:
-                print str(e)
-        return self._package_info
-    
-    @property
     def summary(self):
-        return self.parsed_package_info.get('summary',u'')
+        return self.package_info.get('summary',u'')
     
     @property
     def description(self):
-        return self.parsed_package_info.get('description',u'')
-    
-    def save(self, *args, **kwargs):
-        if hasattr(self,'_package_info'):
-            try:
-                self.package_info = json.dumps(dict(self._package_info.iterlists()))
-                delattr(self,'_package_info')
-            except Exception, e:
-                print str(e)
-        return super(Release, self).save(*args, **kwargs)
+        return self.package_info.get('description',u'')
     
     @models.permalink
     def get_absolute_url(self):

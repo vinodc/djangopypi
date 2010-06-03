@@ -6,7 +6,7 @@ from django.http import (HttpResponse, HttpResponseForbidden,
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth import login
 
-from djangopypi.http import login_basic_auth, HttpResponseUnauthorized
+from djangopypi.decorators import basic_auth
 from djangopypi.forms import PackageForm, ReleaseForm
 from djangopypi.models import Package, Release, Classifier
 
@@ -65,7 +65,7 @@ def submit_package_or_release(user, post_data, files):
 
     return HttpResponse()
 
-
+@basic_auth
 def register_or_upload(request, post_data, files):
     user = login_basic_auth(request)
     if not user:

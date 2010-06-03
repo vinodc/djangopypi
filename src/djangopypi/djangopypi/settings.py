@@ -71,12 +71,10 @@ if not hasattr(settings, 'DJANGOPYPI_FALLBACK_VIEW'):
 
 if not hasattr(settings,'DJANGOPYPI_ACTION_VIEWS'):
     from djangopypi.views.distutils import register_or_upload
-    from djangopypi.views.users import create_user
     
     settings.DJANGOPYPI_ACTION_VIEWS = {
         "file_upload": register_or_upload, #``sdist`` command
         "submit": register_or_upload, #``register`` command
-        "user": create_user, # registering a user
     }
 
 if not hasattr(settings, 'DJANGOPYPI_METADATA_FIELDS'):
