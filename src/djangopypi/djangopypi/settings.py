@@ -79,14 +79,14 @@ if not hasattr(settings,'DJANGOPYPI_ACTION_VIEWS'):
 
 if not hasattr(settings, 'DJANGOPYPI_METADATA_FIELDS'):
     settings.DJANGOPYPI_METADATA_FIELDS = {
-        '1.0': ('platform','summary','description','keywords','home-page',
-                'author','author-email', 'license'),
-        '1.1': ('platform','supported-platform','summary','description',
-                'keywords','home-page','download-url','author','author-email',
+        '1.0': ('platform','summary','description','keywords','home_page',
+                'author','author_email', 'license', 'classifier'),
+        '1.1': ('platform','supported_platform','summary','description',
+                'keywords','home_page','download_url','author','author_email',
                 'license','classifier','requires','provides','obsoletes',),
-        '1.2': ('platform','supported-platform','summary','description',
-                'keywords','home-page','download-url','author','author-email',
-                'maintainer','maintainer-email','license','classifier',
-                'requires-dist','provides-dist','obsoletes-dist',
-                'requires-python','requires-external','project-url')}
+        '1.2': ('platform','supported_platform','summary','description',
+                'keywords','home_page','download_url','author','author_email',
+                'maintainer','maintainer_email','license','classifier',
+                'requires_dist','provides_dist','obsoletes_dist',
+                'requires_python','requires_external','project_url')}
     

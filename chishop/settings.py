@@ -1,4 +1,5 @@
 import os
+import chishop
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -46,8 +47,7 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-here = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-MEDIA_ROOT = os.path.join(here, 'media')
+MEDIA_ROOT = os.path.join(os.path.abspath(os.path.dirname(chishop.__file__)), 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -120,7 +120,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'sqlite3'
-DATABASE_NAME = os.path.join(here, 'devdatabase.db')
+DATABASE_NAME = os.path.join(os.path.abspath(os.path.dirname(chishop.__file__)), 'devdatabase.db')
 DATABASE_USER = ''
 DATABASE_PASSWORD = ''
 DATABASE_HOST = ''

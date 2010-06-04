@@ -1,4 +1,4 @@
-<form action='search' method='post'>
-    <input type="text" name="search_term" id="search_term">
+<form action='{% url djangopypi-search %}' method='get'>
+    <input type="text" name="query" value="{{ request.GET.query }}">
     <input type='submit' value=' Search '/>
 </form>

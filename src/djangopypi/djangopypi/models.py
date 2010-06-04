@@ -7,6 +7,7 @@ from django.utils.datastructures import MultiValueDict
 from django.contrib.auth.models import User
 
 
+
 class PackageInfoField(models.Field):
     description = u'Python Package Information Field'
     __metaclass__ = models.SubfieldBase
@@ -18,7 +19,7 @@ class PackageInfoField(models.Field):
     def to_python(self, value):
         if isinstance(value, basestring):
             if value:
-                return MultiValueDict(json.loads(self.package_info))
+                return MultiValueDict(json.loads(value))
             else:
                 return MultiValueDict()
         if isinstance(value, dict):
@@ -71,7 +72,7 @@ class Package(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('djangopypi-package-details', (), {'package': self.name})
+        return ('djangopypi-package', (), {'package': self.name})
     
     @property
     def latest(self):
@@ -88,7 +89,7 @@ class Package(models.Model):
             return None
 
 class Release(models.Model):
-    package = models.ForeignKey(Package, related_name="releases")
+    package = models.ForeignKey(Package, related_name="releases", editable=False)
     version = models.CharField(max_length=128)
     metadata_version = models.CharField(max_length=64, default='1.0')
     package_info = PackageInfoField(blank=False)
@@ -117,16 +118,22 @@ class Release(models.Model):
     def description(self):
         return self.package_info.get('description',u'')
     
+    @property
+    def classifiers(self):
+        return self.package_info.getlist('classifier')
+    
     @models.permalink
     def get_absolute_url(self):
-        return ('djangopypi-show_version', (), {'package': self.package.name,
-                                                'version': self.version})
+        return ('djangopypi-release', (), {'package': self.package.name,
+                                           'version': self.version})
 
 
-class File(models.Model):
-    release = models.ForeignKey(Release, related_name="files")
-    distribution = models.FileField(upload_to=settings.DJANGOPYPI_RELEASE_UPLOAD_TO)
-    md5_digest = models.CharField(max_length=32, blank=True)
+class Distribution(models.Model):
+    release = models.ForeignKey(Release, related_name="distributions",
+                                editable=False)
+    content = models.FileField(upload_to=settings.DJANGOPYPI_RELEASE_UPLOAD_TO,
+                               editable=False)
+    md5_digest = models.CharField(max_length=32, blank=True, editable=False)
     filetype = models.CharField(max_length=32, blank=False,
                                 choices=settings.DJANGOPYPI_DIST_FILE_TYPES)
     pyversion = models.CharField(max_length=16, blank=True,
@@ -134,27 +141,33 @@ class File(models.Model):
     comment = models.CharField(max_length=255, blank=True)
     signature = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True, editable=False)
-    uploader = models.ForeignKey(User)
+    uploader = models.ForeignKey(User, editable=False)
     
     @property
     def filename(self):
-        return os.path.basename(self.distribution.name)
+        return os.path.basename(self.content.name)
+    
+    @property
+    def display_filetype(self):
+        for key,value in settings.DJANGOPYPI_DIST_FILE_TYPES:
+            if key == self.filetype:
+                return value
+        return self.filetype
     
     @property
     def path(self):
-        return self.distribution.name
+        return self.content.name
     
     def get_absolute_url(self):
-        return "%s#md5=%s" % (self.distribution.url, self.md5_digest)
-
+        return "%s#md5=%s" % (self.content.url, self.md5_digest)
     
     class Meta:
-        verbose_name = _(u"file")
-        verbose_name_plural = _(u"files")
+        verbose_name = _(u"distribution")
+        verbose_name_plural = _(u"distributions")
         unique_together = ("release", "filetype", "pyversion")
     
     def __unicode__(self):
-        return self.distribution.name
+        return self.filename
 
 class Review(models.Model):
     release = models.ForeignKey(Release, related_name="reviews")
@@ -164,3 +177,9 @@ class Review(models.Model):
     class Meta:
         verbose_name = _(u'release review')
         verbose_name_plural = _(u'release reviews')
+
+try:
+    from south.modelsinspector import add_introspection_rules
+    add_introspection_rules([], ["^djangopypi\.models\.PackageInfoField"])
+except ImportError:
+    pass

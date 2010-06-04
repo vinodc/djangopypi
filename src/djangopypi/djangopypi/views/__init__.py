@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.http import HttpResponseNotAllowed
 
 from djangopypi.models import Package, Release
 from djangopypi.http import HttpResponseNotImplemented
@@ -16,11 +17,10 @@ def root(request, fallback_view=None, **kwargs):
         return fallback_view(request, **kwargs)
     
     parse_distutils_request(request)
-    print str(request.POST)
     action = request.POST.get(':action','')
     
     if not action in settings.DJANGOPYPI_ACTION_VIEWS:
         print 'unknown action: %s' % (action,)
-        return HttpResponseNotImplemented("The action %s is not implemented" % (action,))
+        return HttpResponseNotAllowed(settings.DJANGOPYPI_ACTION_VIEW.keys())
     
     return settings.DJANGOPYPI_ACTION_VIEWS[action](request, **kwargs)

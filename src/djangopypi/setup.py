@@ -9,13 +9,12 @@ except ImportError:
 
 import os
 
-version = '0.3'
+version = '0.4'
 
 setup(name='djangopypi',
       version=version,
       description="A Django application that emulates the Python Package Index.",
-      long_description=open(os.path.join("docs", "README")).read() + "\n" +
-                       open(os.path.join("docs", "Changelog")).read(),
+      long_description=open(os.path.join("docs", "README")).read(),
       classifiers=[
         "Framework :: Django",
         "Development Status :: 3 - Alpha",

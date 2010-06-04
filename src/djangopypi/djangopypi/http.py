@@ -32,6 +32,11 @@ def parse_distutils_request(request):
     
     
     request.POST = QueryDict('',mutable=True)
+    try:
+        request._files = MultiValueDict()
+    except Exception, e:
+        pass
+    
     for part in filter(lambda e: e.strip(), request.raw_post_data.split(sep)):
         try:
             header, content = part.lstrip().split('\n',1)
@@ -50,19 +55,19 @@ def parse_distutils_request(request):
             continue
         
         if "filename" in headers:
-            file = TemporaryUploadedFile(name=headers["filename"],
+            dist = TemporaryUploadedFile(name=headers["filename"],
                                          size=len(content),
-                                         content_type="application/gzip")
-            file.write(content)
-            file.seek(0)
-            request.FILES.appendlist('distribution', file)
+                                         content_type="application/gzip",
+                                         charset='utf-8')
+            dist.write(content)
+            dist.seek(0)
+            request.FILES.appendlist(headers['name'], dist)
         else:
             request.POST.appendlist(headers["name"],content)
     return
 
 def parse_header(header):
     headers = {}
-    print 'parsing %s' % (header,)
     for kvpair in filter(lambda p: p,
                          map(lambda p: p.strip(),
                              header.split(';'))):

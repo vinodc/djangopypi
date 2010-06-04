@@ -8,8 +8,12 @@ urlpatterns = patterns("djangopypi.views",
     url(r'^pypi/$', 'releases.index', name='djangopypi-release-index'),
     url(r'^pypi/(?P<package>[\w\d_\.\-]+)/$','packages.details',
         name='djangopypi-package'),
-    url(r'^pypi/(?P<package>[\w\d_\.\-]+)/(?P<release>[\w\d_\.\-]+)/$',
+    url(r'^pypi/(?P<package>[\w\d_\.\-]+)/doap.xml$','packages.doap',
+        name='djangopypi-package-doap'),    
+    url(r'^pypi/(?P<package>[\w\d_\.\-]+)/(?P<version>[\w\d_\.\-]+)/$',
         'releases.details',name='djangopypi-release'),
+    url(r'^pypi/(?P<package>[\w\d_\.\-]+)/(?P<version>[\w\d_\.\-]+)/doap.xml$',
+        'releases.doap',name='djangopypi-release-doap'),
     
     
     

@@ -16,7 +16,7 @@ if settings.LOCAL_DEVELOPMENT:
 urlpatterns += patterns("",
     # Admin interface
     url(r'^admin/doc/', include("django.contrib.admindocs.urls")),
-    url(r'^admin/(.*)', admin.site.root),
+    url(r'^admin/', include(admin.site.urls)),
 
     # Registration
     url(r'^accounts/', include('registration.backends.default.urls')),

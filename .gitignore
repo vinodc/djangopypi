@@ -18,3 +18,4 @@ developer-eggs
 develop-eggs
 downloads
 .installed.cfg
+chishop/media/dists/*
