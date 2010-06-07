@@ -62,6 +62,12 @@ class Migration(SchemaMigration):
         ))
         db.create_unique('djangopypi_package_maintainers', ['package_id', 'user_id'])
 
+        # Deleting field 'Classifier.id'
+        db.delete_column('djangopypi_classifier', 'id')
+
+        # Changing field 'Classifier.name'
+        db.alter_column('djangopypi_classifier', 'name', self.gf('django.db.models.fields.CharField')(max_length=255, primary_key=True))
+
         # Deleting field 'Release.md5_digest'
         db.delete_column('djangopypi_release', 'md5_digest')
 
@@ -150,6 +156,12 @@ class Migration(SchemaMigration):
         # Removing M2M table for field maintainers on 'Package'
         db.delete_table('djangopypi_package_maintainers')
 
+        # Adding field 'Classifier.id'
+        db.add_column('djangopypi_classifier', 'id', self.gf('django.db.models.fields.AutoField')(default='', primary_key=True), keep_default=False)
+
+        # Changing field 'Classifier.name'
+        db.alter_column('djangopypi_classifier', 'name', self.gf('django.db.models.fields.CharField')(max_length=255, unique=True))
+
         # Adding field 'Release.md5_digest'
         db.add_column('djangopypi_release', 'md5_digest', self.gf('django.db.models.fields.CharField')(default='', max_length=255, blank=True), keep_default=False)
 
@@ -235,8 +247,7 @@ class Migration(SchemaMigration):
         },
         'djangopypi.classifier': {
             'Meta': {'object_name': 'Classifier'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '255', 'primary_key': 'True'})
         },
         'djangopypi.distribution': {
             'Meta': {'unique_together': "(('release', 'filetype', 'pyversion'),)", 'object_name': 'Distribution'},
