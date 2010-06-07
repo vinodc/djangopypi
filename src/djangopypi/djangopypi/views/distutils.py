@@ -106,6 +106,10 @@ def register_or_upload(request):
     release, created = Release.objects.get_or_create(package=package,
                                                      version=version)
     
+    if (('classifiers' in request.POST or 'download_url' in request.POST) and 
+        metadata_version == '1.0'):
+        metadata_version = '1.1'
+    
     release.metadata_version = metadata_version
     
     fields = settings.DJANGOPYPI_METADATA_FIELDS[metadata_version]
