@@ -55,7 +55,8 @@ class Classifier(models.Model):
 
 
 class Package(models.Model):
-    name = models.CharField(max_length=255, unique=True, primary_key=True)
+    name = models.CharField(max_length=255, unique=True, primary_key=True,
+                            editable=False)
     auto_hide = models.BooleanField(default=True, blank=False)
     allow_comments = models.BooleanField(default=True, blank=False)
     owners = models.ManyToManyField(User, blank=True,
@@ -90,7 +91,7 @@ class Package(models.Model):
 
 class Release(models.Model):
     package = models.ForeignKey(Package, related_name="releases", editable=False)
-    version = models.CharField(max_length=128)
+    version = models.CharField(max_length=128, editable=False)
     metadata_version = models.CharField(max_length=64, default='1.0')
     package_info = PackageInfoField(blank=False)
     hidden = models.BooleanField(default=False)
