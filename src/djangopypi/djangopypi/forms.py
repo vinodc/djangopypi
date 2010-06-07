@@ -10,7 +10,7 @@ class SimplePackageSearchForm(forms.Form):
 class PackageForm(forms.ModelForm):
     class Meta:
         model = Package
-        exclude = ['owner', 'classifiers']
+        exclude = ['name']
 
 
 class ReleaseForm(forms.ModelForm):

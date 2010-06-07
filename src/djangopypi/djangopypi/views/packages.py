@@ -1,9 +1,9 @@
-from django.views.generic import list_detail
+from django.views.generic import list_detail, create_update
 from django.db.models.query import Q
 
 from djangopypi.decorators import user_owns_package, user_maintains_package
 from djangopypi.models import Package
-from djangopypi.forms import SimplePackageSearchForm
+from djangopypi.forms import SimplePackageSearchForm, PackageForm
 
 
 
@@ -36,4 +36,9 @@ def search(request, **kwargs):
 
 @user_owns_package()
 def manage(request, package, **kwargs):
-    pass
+    kwargs['object_id'] = package
+    kwargs.setdefault('form_class', PackageForm)
+    kwargs.setdefault('template_name', 'djangopypi/package_manage.html')
+    kwargs.setdefault('template_object_name', 'package')
+    
+    return create_update.update_object(request, **kwargs)
