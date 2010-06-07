@@ -68,7 +68,7 @@ if not hasattr(settings,'DJANGOPYPI_PYTHON_VERSIONS'):
 if not hasattr(settings, 'DJANGOPYPI_METADATA_FIELDS'):
     settings.DJANGOPYPI_METADATA_FIELDS = {
         '1.0': ('platform','summary','description','keywords','home_page',
-                'author','author_email', 'license', 'classifier'),
+                'author','author_email', 'license', ),
         '1.1': ('platform','supported_platform','summary','description',
                 'keywords','home_page','download_url','author','author_email',
                 'license','classifier','requires','provides','obsoletes',),
@@ -77,6 +77,13 @@ if not hasattr(settings, 'DJANGOPYPI_METADATA_FIELDS'):
                 'maintainer','maintainer_email','license','classifier',
                 'requires_dist','provides_dist','obsoletes_dist',
                 'requires_python','requires_external','project_url')}
+
+if not hasattr(settings, 'DJANGOPYPI_METADATA_FORMS'):
+    from djangopypi.forms import Metadata10Form, Metadata11Form, Metadata12Form
+    settings.DJANGOPYPI_METADATA_FORMS = {
+        '1.0': Metadata10Form,
+        '1.1': Metadata11Form,
+        '1.2': Metadata12Form}
 
 if not hasattr(settings, 'DJANGOPYPI_FALLBACK_VIEW'):
     from djangopypi.views import releases 
