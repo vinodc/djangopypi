@@ -65,18 +65,6 @@ if not hasattr(settings,'DJANGOPYPI_PYTHON_VERSIONS'):
         ('3.2','3.2'),
     )
 
-if not hasattr(settings, 'DJANGOPYPI_FALLBACK_VIEW'):
-    from djangopypi.views import releases 
-    settings.DJANGOPYPI_FALLBACK_VIEW = releases.index
-
-if not hasattr(settings,'DJANGOPYPI_ACTION_VIEWS'):
-    from djangopypi.views.distutils import register_or_upload
-    
-    settings.DJANGOPYPI_ACTION_VIEWS = {
-        "file_upload": register_or_upload, #``sdist`` command
-        "submit": register_or_upload, #``register`` command
-    }
-
 if not hasattr(settings, 'DJANGOPYPI_METADATA_FIELDS'):
     settings.DJANGOPYPI_METADATA_FIELDS = {
         '1.0': ('platform','summary','description','keywords','home_page',
@@ -89,4 +77,15 @@ if not hasattr(settings, 'DJANGOPYPI_METADATA_FIELDS'):
                 'maintainer','maintainer_email','license','classifier',
                 'requires_dist','provides_dist','obsoletes_dist',
                 'requires_python','requires_external','project_url')}
+
+if not hasattr(settings, 'DJANGOPYPI_FALLBACK_VIEW'):
+    from djangopypi.views import releases 
+    settings.DJANGOPYPI_FALLBACK_VIEW = releases.index
+
+if not hasattr(settings,'DJANGOPYPI_ACTION_VIEWS'):
+    from djangopypi.views.distutils import register_or_upload
     
+    settings.DJANGOPYPI_ACTION_VIEWS = {
+        "file_upload": register_or_upload, #``sdist`` command
+        "submit": register_or_upload, #``register`` command
+    }
