@@ -1,6 +1,7 @@
 from django.views.generic import list_detail
 from django.db.models.query import Q
 
+from djangopypi.decorators import user_owns_package, user_maintains_package
 from djangopypi.models import Package
 from djangopypi.forms import SimplePackageSearchForm
 
@@ -32,3 +33,7 @@ def search(request, **kwargs):
         kwargs['queryset'] = Package.objects.filter(Q(name__contains=q) | 
                                                     Q(releases__package_info__contains=q)).distinct()
     return index(request, **kwargs)
+
+@user_owns_package()
+def manage(request, package, **kwargs):
+    pass
