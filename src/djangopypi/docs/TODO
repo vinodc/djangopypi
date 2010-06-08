@@ -1,51 +1,25 @@
-PyPI feature replication
-========================
+Roadmap
+=======
 
-* Make it possible to register users via distutils.
-  There should be a setting to turn this feature on/off for private PyPIs.
-  [taken-by: sverrej]
+1.0
+---
 
-* Roles (co-owners/maintainers)
-    - One possible solution:
-            http://github.com/initcrash/django-object-permissions/tree
-    I'm not sure what the difference between a co-owner and maintainer is,
-    maybe it's just a label.
-* Package author admin interface (submit, edit, view)
-* Documentation upload
-* Ratings
-* Random Monty Python quotes :-)
-* Comments :-)
+* Optional user registration via distutils (if django-registration is installed)
+* Finish non-staff package admin interface
+* Ratings/comments
 
-Post-PyPI
-=========
+Future
+------
 
-* PEP-381: Mirroring infrastructure for PyPI
-    [taken-by: jezdez]
-
+* Documentation hosting/upload
+* PEP-381: Mirroring integration for PyPI
 * API to submit test reports for smoke test bots. Like CPAN Testers.
   Platform/version/matrix etc.
-
-* Different listings: Author listings, classifier listings, etc.
-
-* Search metadata
-
-* Automatic generation of Sphinx for modules (so you can view them directly
-on pypi, like CPAN), Module listing etc.
-
-* Listing of special files: README, LICENSE, Changefile/Changes, TODO,
-    MANIFEST.
-
-* Dependency graphs.
-
+* Dependency graphs
 * Package file browser (like CPAN)
 
-
-
-
 Documentation
-=============
+-------------
 
 * Write a tutorial on how to set up the server, registering projects, and
   how to upload releases.
-
-
