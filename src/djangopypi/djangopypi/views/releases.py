@@ -1,12 +1,13 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.forms.models import inlineformset_factory
 from django.http import Http404, HttpResponseRedirect
 from django.views.generic import list_detail, create_update
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 
 from djangopypi.decorators import user_owns_package, user_maintains_package
-from djangopypi.models import Package, Release
+from djangopypi.models import Package, Release, Distribution
 from djangopypi.forms import ReleaseForm
 
 
@@ -107,4 +108,38 @@ def manage_metadata(request, package, version, **kwargs):
 
 @user_maintains_package()
 def manage_files(request, package, version, **kwargs):
-    pass
+    package = get_object_or_404(Package, name=package)
+    try:
+        release = package.releases.get(version=version)
+    except Release.DoesNotExist:
+        return Http404()
+    
+    kwargs.setdefault('formset_factory_kwargs',{})
+    kwargs['formset_factory_kwargs'].setdefault('fields', ('comment',))
+    kwargs['formset_factory_kwargs']['extra'] = 0
+    
+    kwargs.setdefault('formset_factory', inlineformset_factory(Release, Distribution, **kwargs['formset_factory_kwargs']))
+    kwargs.setdefault('template_name', 'djangopypi/release_manage_files.html')
+    kwargs.setdefault('template_object_name', 'release')
+    kwargs.setdefault('extra_context',{})
+    kwargs.setdefault('mimetype',settings.DEFAULT_CONTENT_TYPE)
+    kwargs['extra_context'][kwargs['template_object_name']] = release
+    kwargs.setdefault('formset_kwargs',{})
+    kwargs['formset_kwargs']['instance'] = release
+    
+    if request.method == 'POST':
+        formset = kwargs['formset_factory'](data=request.POST,
+                                            files=request.FILES,
+                                            **kwargs['formset_kwargs'])
+        if formset.is_valid():
+            formset.save()
+            return create_update.redirect(kwargs.get('post_save_redirect',None),
+                                          release)
+    
+    formset = kwargs['formset_factory'](**kwargs['formset_kwargs'])
+    
+    kwargs['extra_context']['formset'] = formset
+    
+    return render_to_response(kwargs['template_name'], kwargs['extra_context'],
+                              context_instance=RequestContext(request),
+                              mimetype=kwargs['mimetype'])

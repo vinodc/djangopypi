@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db.models.query import Q
-from django.forms.models import modelformset_factory, inlineformset_factory
+from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.views.generic import list_detail, create_update
@@ -61,7 +61,6 @@ def manage_versions(request, package, **kwargs):
     kwargs.setdefault('mimetype',settings.DEFAULT_CONTENT_TYPE)
     kwargs['extra_context'][kwargs['template_object_name']] = package
     kwargs.setdefault('formset_kwargs',{})
-    #kwargs['formset_kwargs']['queryset'] = package.releases.all()
     kwargs['formset_kwargs']['instance'] = package
     
     if request.method == 'POST':
