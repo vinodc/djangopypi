@@ -9,15 +9,14 @@ except ImportError:
 
 import os
 
-version = '0.3'
-docs = os.path.join(os.path.dirname(__file__), "docs")
+version = '0.3.1'
 
 setup(name='djangopypi',
       version=version,
       description="A Django application that emulates the Python Package Index.",
-      long_description=open(os.path.join(docs, "README")).read() + "\n\n" +
-                       open(os.path.join(docs, 'Changelog')).read() + "\n\n" +
-                       open(os.path.join(docs, 'TODO')).read(),
+      long_description=open(os.path.join('docs', "README")).read() + "\n\n" +
+                       open(os.path.join('docs', 'Changelog')).read() + "\n\n" +
+                       open(os.path.join('docs', 'TODO')).read(),
       classifiers=[
         "Framework :: Django",
         "Development Status :: 3 - Alpha",
