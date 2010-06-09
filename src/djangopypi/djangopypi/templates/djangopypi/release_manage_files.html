@@ -16,7 +16,6 @@
 					<th>Download</th>
 					<th>Size</th>
 					<th>MD5 Digest</th>
-					
 				</tr>
 			</thead>
 			<tbody>
@@ -27,7 +26,7 @@
 					<td>{{ form.DELETE }}</td>
 					<td>{{ dist.display_filetype }}</td>
 					<td>{{ dist.pyversion }}</td>
-					<td>{{ dist.comment }}</td>
+					<td>{{ form.comment }}</td>
 					<td><a href="{{ dist.get_absolute_url }}">{{ dist.filename }}</a></td>
 					<td>{{ dist.content.size|filesizeformat }}</td>
 					<td>{{ dist.md5_digest }}</td>
