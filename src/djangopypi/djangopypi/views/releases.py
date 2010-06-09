@@ -104,3 +104,7 @@ def manage_metadata(request, package, version, **kwargs):
     return render_to_response(kwargs['template_name'], kwargs['extra_context'],
                               context_instance=RequestContext(request),
                               mimetype=kwargs['mimetype'])
+
+@user_maintains_package()
+def manage_files(request, package, version, **kwargs):
+    pass
