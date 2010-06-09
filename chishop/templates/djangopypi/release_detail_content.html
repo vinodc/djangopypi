@@ -11,6 +11,7 @@
 {{ release.description|saferst }}
 </div>
 
+{% if release.distributions.count %}
 <div>
 <table>
 	<thead>
@@ -29,6 +30,7 @@
 	</tbody>
 </table>
 </div>
+{% endif %}
 <div>
 <ul class="plainlist">
 <li><strong>License: </strong>{{ release.package_info.license }}</li>
