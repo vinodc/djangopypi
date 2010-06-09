@@ -1,62 +1,74 @@
-=========================================
-ChiShop/DjangoPyPI
-=========================================
-:Version: 0.1
+DjangoPyPI
+==========
+
+DjangoPyPI is a Django application that provides a re-implementation of the 
+`Python Package Index <http://pypi.python.org>`_.  
 
 Installation
-============
+------------
 
-Install dependencies::
+Path
+____
 
-    $ python bootstrap.py --distribute
-    $ ./bin/buildout
+The first step is to get ``djangopypi`` into your Python path.
 
-Initial configuration
----------------------
-::
+Buildout
+++++++++
 
-    $ $EDITOR chishop/settings.py
-    $ ./bin/django syncdb
+Simply add ``djangopypi`` to your list of ``eggs`` and run buildout again it 
+should downloaded and installed properly.
 
-Run the PyPI server
--------------------
-::
+EasyInstall/Setuptools
+++++++++++++++++++++++
 
-    $ ./bin/django runserver
+If you have setuptools installed, you can use ``easy_install djangopypi``
 
-Please note that ``chishop/media/dists`` has to be writable by the
-user the web-server is running as.
+Manual
+++++++
 
-In production
--------------
+Download and unpack the source then run::
 
-You may want to copy the file ``chishop/production_example.py`` and modify
-for use as your production settings; you will also need to modify
-``bin/django.wsgi`` to refer to your production settings.
+    $ python setup.py install
 
-Using Setuptools
-================
+Django Settings
+_______________
 
-Add the following to your ``~/.pypirc`` file::
+Add ``djangopypi`` to your ``INSTALLED_APPS`` setting and run ``syncdb`` again 
+to get the database tables [#]_.
+
+Then add an include in your url config for ``djangopypi.urls``::
+
+    urlpatterns = patterns("",
+        ...
+        url(r'', include("djangopypi.urls"))
+    )
+
+This will make the repository interface be accessible at ``/pypi/``.
+
+
+
+Uploading to your PyPI
+----------------------
+
+Assuming you are running your Django site locally for now, add the following to 
+your ``~/.pypirc`` file::
 
     [distutils]
     index-servers =
         pypi
         local
 
-
     [pypi]
     username:user
     password:secret
 
     [local]
-
     username:user
     password:secret
-    repository:http://localhost:8000
+    repository:http://localhost:8000/pypi
 
 Uploading a package: Python >=2.6
---------------------------------------------
+_________________________________
 
 To push the package to the local pypi::
 
@@ -64,16 +76,20 @@ To push the package to the local pypi::
 
 
 Uploading a package: Python <2.6
--------------------------------------------
+________________________________
 
-If you don't have Python 2.6 please run the command below to install the backport of the extension::
+If you don't have Python 2.6 please run the command below to install the 
+backport of the extension for multiple repositories::
 
      $ easy_install -U collective.dist
 
-instead of using register and dist command, you can use "mregister" and "mupload", that are a backport of python 2.6 register and upload commands, that supports multiple servers.
+Instead of using register and dist command, you can use ``mregister`` and 
+``mupload`` which are a backport of python 2.6 register and upload commands 
+that supports multiple servers.
 
 To push the package to the local pypi::
 
     $ python setup.py mregister -r local sdist mupload -r local
 
-.. # vim: syntax=rst expandtab tabstop=4 shiftwidth=4 shiftround
+.. [#] ``djangopypi`` is South enabled, if you are using South then you will need
+   to run the South ``migrate`` command to get the tables.

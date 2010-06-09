@@ -1,13 +1,17 @@
 Roadmap
 =======
 
-1.0
+0.4
 ---
 
+* Distribution uploads (files for releases)
+* 'list_classifiers' action handler
+
+0.5
+---
+
+* Ratings/comments views/admin
 * PKG-INFO view of a release (auto generated from package_info field)
-* Optional user registration via distutils (if django-registration is installed)
-* Finish non-staff package admin interface
-* Ratings/comments
 
 Future
 ------
