@@ -120,6 +120,10 @@ def register_or_upload(request):
     release.package_info = MultiValueDict(dict(filter(lambda t: t[0] in fields,
                                                       request.POST.iterlists())))
     
+    for key, value in release.package_info.iterlists():
+        release.package_info.setlist(key,
+                                     filter(lambda v: v != 'UNKNOWN', value))
+    
     release.save()
     if not 'content' in request.FILES:
         transaction.commit()
