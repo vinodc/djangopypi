@@ -5,6 +5,7 @@ Roadmap
 ---
 
 * Distribution uploads (files for releases)
+* RSS support for release index, packages, releases
 * 'list_classifiers' action handler
 
 0.5

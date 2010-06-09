@@ -4,6 +4,7 @@ History
 0.3 (2010-06-09)
 ----------------
 
+* Added DOAP views of packages and releases
 * Splitting djangopypi off of chishop
 * Switched most views to using django generic views
 
