@@ -18,6 +18,7 @@ urlpatterns = patterns("djangopypi.views",
         'releases.doap',name='djangopypi-release-doap'),
     url(r'^pypi/(?P<package>[\w\d_\.\-]+)/(?P<version>[\w\d_\.\-]+)/manage/$',
         'releases.manage',name='djangopypi-release-manage'),
-    
+    url(r'^pypi/(?P<package>[\w\d_\.\-]+)/(?P<version>[\w\d_\.\-]+)/manage/metadata/$',
+        'releases.manage_metadata',name='djangopypi-release-manage-metadata'),
     
 )

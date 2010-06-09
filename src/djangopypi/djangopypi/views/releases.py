@@ -52,3 +52,55 @@ def manage(request, package, version, **kwargs):
     kwargs.setdefault('template_object_name', 'release')
     
     return create_update.update_object(request, **kwargs)
+
+@user_maintains_package()
+def manage_metadata(request, package, version, **kwargs):
+    kwargs.setdefault('template_name', 'djangopypi/release_manage.html')
+    kwargs.setdefault('template_object_name', 'release')
+    kwargs.setdefault('extra_context',{})
+    kwargs.setdefault('mimetype',settings.DEFAULT_CONTENT_TYPE)
+    
+    release = get_object_or_404(Package, name=package).get_release(version)
+    
+    if not release:
+        return Http404()
+    
+    if not release.metadata_version in settings.DJANGOPYPI_METADATA_FORMS:
+        #TODO: Need to change this to a more meaningful error
+        return Http404()
+    
+    kwargs['extra_context'][kwargs['template_object_name']] = release
+    
+    form_class = settings.DJANGOPYPI_METADATA_FORMS.get(release.metadata_version)
+    
+    initial = {}
+    multivalue = ('classifier',)
+    
+    for key, values in release.package_info.iterlists():
+        if key in multivalue:
+            initial[key] = values
+        else:
+            initial[key] = '\n'.join(values)
+    
+    if request.method == 'POST':
+        form = form_class(data=request.POST, initial=initial)
+        
+        if form.is_valid():
+            for key, value in form.cleaned_data.iteritems():
+                if isinstance(value, basestring):
+                    release.package_info[key] = value
+                elif hasattr(value, '__iter__'):
+                    release.package_info.setlist(key, list(value))
+            
+            release.save()
+            print str(release.package_info)
+            return create_update.redirect(kwargs.get('post_save_redirect',None),
+                                          release)
+    else:
+        form = form_class(initial=initial)
+    
+    kwargs['extra_context']['form'] = form
+    
+    return render_to_response(kwargs['template_name'], kwargs['extra_context'],
+                              context_instance=RequestContext(request),
+                              mimetype=kwargs['mimetype'])

@@ -27,17 +27,28 @@ metadata10licenses = ('Artistic', 'BSD', 'DFSG', 'GNU GPL', 'GNU LGPL',
                      'Qt', 'PL', 'Zope PL', 'unknown', 'nocommercial', 'nosell', 
                      'nosource', 'shareware', 'other')
 
+class LinesField(forms.CharField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('widget', forms.Textarea())
+        super(LinesField, self).__init__(*args, **kwargs)
+    
+    def to_python(self, value):
+        return map(lambda s: s.strip(),
+                   super(LinesField, self).to_python(value).split('\n'))
+
 class Metadata10Form(forms.Form):
-    platform = forms.CharField(required=False, widget=forms.Textarea(),
-                               help_text=_(u'A comma-separated list of platform '
-                                           'specifications, summarizing the '
-                                           'operating systems supported by the '
-                                           'package.'))
+    platform = LinesField(required=False,
+                          help_text=_(u'A comma-separated list of platform '
+                                      'specifications, summarizing the '
+                                      'operating systems supported by the '
+                                      'package.'))
     
     summary = forms.CharField(help_text=_(u'A one-line summary of what the '
                                           'package does.'))
     
-    description = forms.CharField(required=False, widget=forms.Textarea(),
+    description = forms.CharField(required=False,
+                                  widget=forms.Textarea(attrs=dict(rows=40,
+                                                                   columns=40)),
                                   help_text=_(u'A longer description of the '
                                               'package that can run to several '
                                               'paragraphs. If this is in '
@@ -52,7 +63,9 @@ class Metadata10Form(forms.Form):
                                help_text=_(u'A string containing the URL for '
                                            'the package\'s home page.'))
     
-    author = forms.CharField(required=False, widget=forms.Textarea(),
+    author = forms.CharField(required=False,
+                             widget=forms.Textarea(attrs=dict(rows=3,
+                                                              columns=20)),
                              help_text=_(u'A string containing at a minimum the '
                                          'author\'s name.  Contact information '
                                          'can also be added, separating each '
@@ -96,24 +109,23 @@ class Metadata11Form(Metadata10Form):
                                                 queryset=Classifier.objects.all(),
                                                 help_text=_(u'Trove classifiers'))
     
-    requires = forms.CharField(required=False, widget=forms.Textarea(),
-                               help_text=_(u'Each line contains a string '
-                                           'describing some other module or '
-                                           'package required by this package.'))
+    requires = LinesField(required=False,
+                          help_text=_(u'Each line contains a string describing '
+                                      'some other module or package required by '
+                                      'this package.'))
     
-    provides = forms.CharField(required=False, widget=forms.Textarea(),
-                               help_text=_(u'Each line contains a string '
-                                           'describing a package or module that '
-                                           'will be provided by this package '
-                                           'once it is installed'))
+    provides = LinesField(required=False,
+                          help_text=_(u'Each line contains a string describing '
+                                      'a package or module that will be '
+                                      'provided by this package once it is '
+                                      'installed'))
     
-    obsoletes = forms.CharField(required=False, widget=forms.Textarea(),
-                               help_text=_(u'Each line contains a string '
-                                           'describing a package or module that '
-                                           'this package renders obsolete, '
-                                           'meaning that the two packages '
-                                           'should not be installed at the '
-                                           'same time'))
+    obsoletes = LinesField(required=False,
+                           help_text=_(u'Each line contains a string describing '
+                                       'a package or module that this package '
+                                       'renders obsolete, meaning that the two '
+                                       'packages should not be installed at the '
+                                       'same time'))
 
 class Metadata12Form(Metadata10Form):
     supported_platform = forms.CharField(required=False, widget=forms.Textarea(),
@@ -162,26 +174,26 @@ class Metadata12Form(Metadata10Form):
                                                 queryset=Classifier.objects.all(),
                                                 help_text=_(u'Trove classifiers'))
     
-    requires_dist = forms.CharField(required=False, widget=forms.Textarea(),
-                                    help_text=_(u'Each line contains a string '
-                                                'describing some other module or '
-                                                'package required by this package.'))
+    requires_dist = LinesField(required=False,
+                               help_text=_(u'Each line contains a string '
+                                            'describing some other module or '
+                                            'package required by this package.'))
     
-    provides_dist = forms.CharField(required=False, widget=forms.Textarea(),
-                                    help_text=_(u'Each line contains a string '
-                                                'describing a package or module that '
-                                                'will be provided by this package '
-                                                'once it is installed'))
+    provides_dist = LinesField(required=False,
+                               help_text=_(u'Each line contains a string '
+                                           'describing a package or module that '
+                                           'will be provided by this package '
+                                           'once it is installed'))
+
+    obsoletes_dist = LinesField(required=False,
+                                help_text=_(u'Each line contains a string '
+                                            'describing a package or module that '
+                                            'this package renders obsolete, '
+                                            'meaning that the two packages '
+                                            'should not be installed at the '
+                                            'same time'))
     
-    obsoletes_dist = forms.CharField(required=False, widget=forms.Textarea(),
-                                     help_text=_(u'Each line contains a string '
-                                                 'describing a package or module that '
-                                                 'this package renders obsolete, '
-                                                 'meaning that the two packages '
-                                                 'should not be installed at the '
-                                                 'same time'))
-    
-    requires_python = forms.CharField(max_length=255, required=False,
+    requires_python = forms.CharField(required=False,
                                       help_text=_(u'This field specifies the '
                                                   'Python version(s) that the '
                                                   'distribution is guaranteed '
