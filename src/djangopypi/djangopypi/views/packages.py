@@ -16,10 +16,18 @@ def index(request, **kwargs):
     kwargs.setdefault('queryset',Package.objects.all())
     return list_detail.object_list(request, **kwargs)
 
+def simple_index(request, **kwargs):
+    kwargs.setdefault('template_name','djangopypi/package_list_simple.html')
+    return index(request, **kwargs)
+
 def details(request, package, **kwargs):
     kwargs.setdefault('template_object_name','package')
     kwargs.setdefault('queryset',Package.objects.all())
     return list_detail.object_detail(request, object_id=package, **kwargs)
+
+def simple_details(request, package, **kwargs):
+    kwargs.setdefault('template_name', 'djangopypi/package_detail_simple.html')
+    return details(request, package, **kwargs)
 
 def doap(request, package, **kwargs):
     kwargs.setdefault('template_name','djangopypi/package_doap.xml')
