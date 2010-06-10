@@ -160,3 +160,8 @@ def register_or_upload(request):
     transaction.commit()
     
     return HttpResponse('upload accepted')
+
+def list_classifiers(request, mimetype='text/plain'):
+    response = HttpResponse(mimetype=mimetype)
+    response.write(u'\n'.join(map(lambda c: c.name,Classifier.objects.all())))
+    return response

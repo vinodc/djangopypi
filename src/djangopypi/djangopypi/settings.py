@@ -90,9 +90,10 @@ if not hasattr(settings, 'DJANGOPYPI_FALLBACK_VIEW'):
     settings.DJANGOPYPI_FALLBACK_VIEW = releases.index
 
 if not hasattr(settings,'DJANGOPYPI_ACTION_VIEWS'):
-    from djangopypi.views.distutils import register_or_upload
+    from djangopypi.views import distutils
     
     settings.DJANGOPYPI_ACTION_VIEWS = {
-        "file_upload": register_or_upload, #``sdist`` command
-        "submit": register_or_upload, #``register`` command
+        "file_upload": distutils.register_or_upload, #``sdist`` command
+        "submit": distutils.register_or_upload, #``register`` command
+        "list_classifiers": distutils.list_classifiers, #``list_classifiers`` command
     }

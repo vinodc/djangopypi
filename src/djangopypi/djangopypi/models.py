@@ -49,6 +49,7 @@ class Classifier(models.Model):
     class Meta:
         verbose_name = _(u"classifier")
         verbose_name_plural = _(u"classifiers")
+        ordering = ('name',)
     
     def __unicode__(self):
         return self.name
