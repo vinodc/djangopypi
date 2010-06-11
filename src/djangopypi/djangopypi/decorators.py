@@ -1,11 +1,18 @@
-try:
-    from functools import update_wrapper, wraps
-except ImportError:
-    from django.utils.functional import update_wrapper, wraps
-
 from django.conf import settings
 from django.contrib.auth import login, REDIRECT_FIELD_NAME
-from django.utils.decorators import available_attrs
+from django.http import HttpResponseRedirect
+from django.utils.http import urlquote
+
+try:
+    from functools import update_wrapper, wraps, WRAPPER_ASSIGNMENTS
+except ImportError:
+    from django.utils.functional import update_wrapper, wraps, WRAPPER_ASSIGNMENTS
+
+try:
+    from django.utils.decorators import available_attrs
+except ImportError:
+    def available_attrs(fn):
+        return tuple(a for a in WRAPPER_ASSIGNMENTS if hasattr(fn, a))
 
 from djangopypi.http import HttpResponseUnauthorized, login_basic_auth
 
@@ -29,17 +36,6 @@ def basic_auth(view_func):
                                          "password.")
         return view_func(request, *args, **kwargs)
     return wraps(view_func, assigned=available_attrs(view_func))(_wrapped_view)
-
-try:
-    from functools import update_wrapper, wraps
-except ImportError:
-    from django.utils.functional import update_wrapper, wraps  # Python 2.4 fallback.
-
-from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.http import HttpResponseRedirect
-from django.utils.decorators import available_attrs
-from django.utils.http import urlquote
-
 
 def user_owns_package(login_url=None, redirect_field_name=REDIRECT_FIELD_NAME):
     """
