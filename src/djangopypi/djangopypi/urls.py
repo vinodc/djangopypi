@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls.defaults import patterns, url, include
+from djangopypi.feeds import ReleaseFeed
 
 urlpatterns = patterns("djangopypi.views",
     url(r'^$', "root", name="djangopypi-root"),
@@ -7,12 +8,15 @@ urlpatterns = patterns("djangopypi.views",
     url(r'^simple/$','packages.simple_index', name='djangopypi-package-index-simple'),
     url(r'^search/$','packages.search',name='djangopypi-search'),
     url(r'^pypi/$', 'root', name='djangopypi-release-index'),
+    url(r'^rss/$', ReleaseFeed(), name='djangopypi-rss'),
     
     url(r'^simple/(?P<package>[\w\d_\.\-]+)/$','packages.simple_details',
         name='djangopypi-package-simple'),
     
     url(r'^pypi/(?P<package>[\w\d_\.\-]+)/$','packages.details',
         name='djangopypi-package'),
+    url(r'^pypi/(?P<package>[\w\d_\.\-]+)/rss/$', ReleaseFeed(),
+        name='djangopypi-package-rss'),    
     url(r'^pypi/(?P<package>[\w\d_\.\-]+)/doap.rdf$','packages.doap',
         name='djangopypi-package-doap'),
     url(r'^pypi/(?P<package>[\w\d_\.\-]+)/manage/$','packages.manage',
