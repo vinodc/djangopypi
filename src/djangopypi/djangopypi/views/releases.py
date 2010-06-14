@@ -8,7 +8,7 @@ from django.template import RequestContext
 
 from djangopypi.decorators import user_owns_package, user_maintains_package
 from djangopypi.models import Package, Release, Distribution
-from djangopypi.forms import ReleaseForm
+from djangopypi.forms import ReleaseForm, DistributionUploadForm
 
 
 
@@ -21,7 +21,8 @@ def details(request, package, version, **kwargs):
     release = get_object_or_404(Package, name=package).get_release(version)
     
     if not release:
-        return Http404()
+        raise Http404('Version %s does not exist for %s' % (version,
+                                                            package,))
     
     kwargs.setdefault('template_object_name','release')
     kwargs.setdefault('template_name','djangopypi/release_detail.html')
@@ -44,7 +45,8 @@ def manage(request, package, version, **kwargs):
     release = get_object_or_404(Package, name=package).get_release(version)
     
     if not release:
-        return Http404()
+        raise Http404('Version %s does not exist for %s' % (version,
+                                                            package,))
     
     kwargs['object_id'] = release.pk
     
@@ -64,11 +66,12 @@ def manage_metadata(request, package, version, **kwargs):
     release = get_object_or_404(Package, name=package).get_release(version)
     
     if not release:
-        return Http404()
+        raise Http404('Version %s does not exist for %s' % (version,
+                                                            package,))
     
     if not release.metadata_version in settings.DJANGOPYPI_METADATA_FORMS:
         #TODO: Need to change this to a more meaningful error
-        return Http404()
+        raise Http404()
     
     kwargs['extra_context'][kwargs['template_object_name']] = release
     
@@ -94,7 +97,6 @@ def manage_metadata(request, package, version, **kwargs):
                     release.package_info.setlist(key, list(value))
             
             release.save()
-            print str(release.package_info)
             return create_update.redirect(kwargs.get('post_save_redirect',None),
                                           release)
     else:
@@ -108,11 +110,11 @@ def manage_metadata(request, package, version, **kwargs):
 
 @user_maintains_package()
 def manage_files(request, package, version, **kwargs):
-    package = get_object_or_404(Package, name=package)
-    try:
-        release = package.releases.get(version=version)
-    except Release.DoesNotExist:
-        return Http404()
+    release = get_object_or_404(Package, name=package).get_release(version)
+    
+    if not release:
+        raise Http404('Version %s does not exist for %s' % (version,
+                                                            package,))
     
     kwargs.setdefault('formset_factory_kwargs',{})
     kwargs['formset_factory_kwargs'].setdefault('fields', ('comment',))
@@ -126,6 +128,7 @@ def manage_files(request, package, version, **kwargs):
     kwargs['extra_context'][kwargs['template_object_name']] = release
     kwargs.setdefault('formset_kwargs',{})
     kwargs['formset_kwargs']['instance'] = release
+    kwargs.setdefault('upload_form_factory', DistributionUploadForm)
     
     if request.method == 'POST':
         formset = kwargs['formset_factory'](data=request.POST,
@@ -133,12 +136,50 @@ def manage_files(request, package, version, **kwargs):
                                             **kwargs['formset_kwargs'])
         if formset.is_valid():
             formset.save()
-            return create_update.redirect(kwargs.get('post_save_redirect',None),
-                                          release)
-    
-    formset = kwargs['formset_factory'](**kwargs['formset_kwargs'])
+            formset = kwargs['formset_factory'](**kwargs['formset_kwargs'])
+    else:
+        formset = kwargs['formset_factory'](**kwargs['formset_kwargs'])
     
     kwargs['extra_context']['formset'] = formset
+    kwargs['extra_context'].setdefault('upload_form',
+                                       kwargs['upload_form_factory']())
+    
+    return render_to_response(kwargs['template_name'], kwargs['extra_context'],
+                              context_instance=RequestContext(request),
+                              mimetype=kwargs['mimetype'])
+
+@user_maintains_package()
+def upload_file(request, package, version, **kwargs):
+    release = get_object_or_404(Package, name=package).get_release(version)
+    
+    if not release:
+        raise Http404('Version %s does not exist for %s' % (version,
+                                                            package,))
+    
+    kwargs.setdefault('form_factory', DistributionUploadForm)
+    kwargs.setdefault('post_save_redirect', reverse('djangopypi-release-manage-files',
+                                                    kwargs={'package': package,
+                                                            'version': version}))
+    kwargs.setdefault('template_name', 'djangopypi/release_upload_file.html')
+    kwargs.setdefault('template_object_name', 'release')
+    kwargs.setdefault('extra_context',{})
+    kwargs.setdefault('mimetype',settings.DEFAULT_CONTENT_TYPE)
+    kwargs['extra_context'][kwargs['template_object_name']] = release
+    
+    if request.method == 'POST':
+        form = kwargs['form_factory'](data=request.POST, files=request.FILES)
+        if form.is_valid():
+            dist = form.save(commit=False)
+            dist.release = release
+            dist.uploader = request.user
+            dist.save()
+            
+            return create_update.redirect(kwargs.get('post_save_redirect'),
+                                          release)
+    else:
+        form = kwargs['form_factory']()
+    
+    kwargs['extra_context']['form'] = form
     
     return render_to_response(kwargs['template_name'], kwargs['extra_context'],
                               context_instance=RequestContext(request),

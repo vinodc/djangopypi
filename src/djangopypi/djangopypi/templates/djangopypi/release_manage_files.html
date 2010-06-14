@@ -4,6 +4,7 @@
 	</head>
 	<body>
 		<h1>Manage {{ release }} Files</h1>
+		{% if formset.forms %}
 		<form action="" method="post">
 		{{ formset.management_form }}
 		<table>
@@ -24,7 +25,7 @@
 				{% with form.instance as dist %}
 				<tr>
 					<td>{{ form.DELETE }}</td>
-					<td>{{ dist.display_filetype }}</td>
+					<td>{{ dist.get_filetype_display }}</td>
 					<td>{{ dist.pyversion }}</td>
 					<td>{{ form.comment }}</td>
 					<td><a href="{{ dist.get_absolute_url }}">{{ dist.filename }}</a></td>
@@ -37,5 +38,14 @@
 		</table>
 		<div><input type="submit" value="Save" /></div>
 		</form>
+		{% endif %}
+		{% if upload_form %}
+		<h2>Upload a Distribution</h2>
+		<form action="{% url djangopypi-release-upload-file package=release.package.name version=release.version %}"
+			method="post" enctype="multipart/form-data">
+			{{ upload_form.as_p }}
+			<div><input type="submit" value="Upload" /></div>
+		</form>
+		{% endif %}
 	</body>
 </html>

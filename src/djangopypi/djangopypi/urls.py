@@ -34,4 +34,6 @@ urlpatterns = patterns("djangopypi.views",
         'releases.manage_metadata',name='djangopypi-release-manage-metadata'),
     url(r'^pypi/(?P<package>[\w\d_\.\-]+)/(?P<version>[\w\d_\.\-]+)/files/$',
         'releases.manage_files',name='djangopypi-release-manage-files'),
+    url(r'^pypi/(?P<package>[\w\d_\.\-]+)/(?P<version>[\w\d_\.\-]+)/files/upload/$',
+        'releases.upload_file',name='djangopypi-release-upload-file'),
 )
