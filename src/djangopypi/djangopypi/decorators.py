@@ -68,8 +68,9 @@ def user_maintains_package(login_url=None, redirect_field_name=REDIRECT_FIELD_NA
     
     def decorator(view_func):
         def _wrapped_view(request, package, *args, **kwargs):
-            if request.user.packages_owned.filter(name=package).count() > 0 or \
-               request.user.packages_maintained.filter(name=package).count() > 0:
+            if (request.user.is_authenticated() and  
+                (request.user.packages_owned.filter(name=package).count() > 0 or 
+                 request.user.packages_maintained.filter(name=package).count() > 0)):
                 return view_func(request, package=package, *args, **kwargs)
             
             path = urlquote(request.get_full_path())
