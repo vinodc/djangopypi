@@ -133,8 +133,7 @@ class Release(models.Model):
 class Distribution(models.Model):
     release = models.ForeignKey(Release, related_name="distributions",
                                 editable=False)
-    content = models.FileField(upload_to=settings.DJANGOPYPI_RELEASE_UPLOAD_TO,
-                               editable=False)
+    content = models.FileField(upload_to=settings.DJANGOPYPI_RELEASE_UPLOAD_TO)
     md5_digest = models.CharField(max_length=32, blank=True, editable=False)
     filetype = models.CharField(max_length=32, blank=False,
                                 choices=settings.DJANGOPYPI_DIST_FILE_TYPES)
