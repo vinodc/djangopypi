@@ -1,12 +1,13 @@
 History
 =======
 
-0.4 (Unreleased)
+0.4 (2010-06-14)
 ----------------
 
 * 'list_classifiers' action handler
 * Issue #3: decorators imports incompatible with Django 1.0, 1.1
 * RSS support for release index, packages
+* Distribution uploads (files for releases)
 
 0.3.1 (2010-06-09)
 ------------------

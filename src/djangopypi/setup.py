@@ -9,7 +9,7 @@ except ImportError:
 
 import os
 
-version = '0.3.1'
+version = '0.4'
 
 setup(name='djangopypi',
       version=version,
@@ -19,8 +19,7 @@ setup(name='djangopypi',
                        open(os.path.join('docs', 'TODO')).read(),
       classifiers=[
         "Framework :: Django",
-        "Development Status :: 3 - Alpha",
-        #"Development Status :: 4 - Beta",
+        "Development Status :: 4 - Beta",
         #"Development Status :: 5 - Production/Stable",
         "Programming Language :: Python",
         "Environment :: Web Environment",
