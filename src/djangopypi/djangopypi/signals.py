@@ -1,6 +1,7 @@
 from django.db.models import signals
+from django.utils.hashcompat import md5_constructor
 
-from djangopypi.models import Package, Release
+from djangopypi.models import Package, Release, Distribution
 
 
 def autohide_new_release_handler(sender, instance, created, *args, **kwargs):
@@ -40,6 +41,19 @@ def autohide_save_package_handler(sender, instance, *args, **kwargs):
     for release in instance.releases.filter(hidden=False):
         release.save()
 
+def distribution_hash(sender, instance, *args, **kwargs):
+    if not instance.md5_digest and instance.content:
+        digest = md5_constructor()
+        try:
+            fh = instance.content.storage.open(instance.content.name)
+            map(digest.update,fh.readlines())
+            fh.close()
+            instance.md5_digest = digest.hexdigest()
+            instance.save()
+        except Exception, e:
+            print str(e)
+
 signals.post_save.connect(autohide_new_release_handler, sender=Release)
 signals.pre_save.connect(autohide_save_release_handler, sender=Release)
 signals.pre_save.connect(autohide_save_package_handler, sender=Package)
+signals.post_save.connect(distribution_hash, sender=Distribution)

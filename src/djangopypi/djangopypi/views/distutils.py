@@ -4,7 +4,6 @@ import re
 from django.conf import settings
 from django.db import transaction
 from django.http import *
-from django.utils.hashcompat import md5_constructor
 from django.utils.translation import ugettext_lazy as _
 from django.utils.datastructures import MultiValueDict
 from django.contrib.auth import login
@@ -138,11 +137,6 @@ def register_or_upload(request):
             return HttpResponseBadRequest('That file has already been uploaded...')
 
     md5_digest = request.POST.get('md5_digest','')
-    
-    if not md5_digest:
-        digest = md5_constructor()
-        map(digest.update,uploaded)
-        md5_digest = digest.hexdigest()
     
     try:
         new_file = Distribution.objects.create(release=release,
