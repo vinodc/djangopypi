@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages
 
 def fread(fname):
-    return open(os.path.join(os.path.dirname(__file__), '', fname)).read()
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 version = '0.4'
 
@@ -10,7 +10,7 @@ setup(
     name='djangopypi',
     version=version,
     description="A Django application that emulates the Python Package Index.",
-    long_description=fread("README")+"\n\n"+fread('Changelog')+"\n\n"+fread('TODO'),
+    long_description=fread("README.rst")+"\n\n"+fread('Changelog')+"\n\n"+fread('TODO'),
     classifiers=[
         "Framework :: Django",
         "Development Status :: 4 - Beta",
