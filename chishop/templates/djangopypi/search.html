@@ -1,4 +1,5 @@
-<form action='{% url djangopypi-search %}' method='get'>
-    <input type="text" name="query" value="{{ request.GET.query }}">
-    <input type='submit' value=' Search '/>
+{% load i18n %}
+<form action='{% url haystack_search %}' method='get'>
+    <input type="text" name="q" value="{{ request.GET.q }}">
+    <input type='submit' value='{% trans "Search" %}'/>
 </form>

@@ -22,3 +22,4 @@ develop-eggs
 downloads
 .installed.cfg
 chishop/media/dists/*
+chishop/haystack/*

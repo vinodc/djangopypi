@@ -21,6 +21,10 @@ urlpatterns += patterns("",
     # Registration
     url(r'^accounts/', include('registration.backends.default.urls')),
 
+    url(r'^search/', 'haystack.views.basic_search', {
+        'template': 'djangopypi/search_results.html',
+    }, name='haystack_search'),
+
     # The Chishop
-    url(r'', include("djangopypi.urls"))
+    url(r'', include("djangopypi.urls")),
 )
