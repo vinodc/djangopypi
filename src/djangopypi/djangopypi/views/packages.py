@@ -12,17 +12,17 @@ from djangopypi.forms import SimplePackageSearchForm, PackageForm
 
 
 def index(request, **kwargs):
-    kwargs.setdefault('template_object_name','package')
-    kwargs.setdefault('queryset',Package.objects.all())
+    kwargs.setdefault('template_object_name', 'package')
+    kwargs.setdefault('queryset', Package.objects.all())
     return list_detail.object_list(request, **kwargs)
 
 def simple_index(request, **kwargs):
-    kwargs.setdefault('template_name','djangopypi/package_list_simple.html')
+    kwargs.setdefault('template_name', 'djangopypi/package_list_simple.html')
     return index(request, **kwargs)
 
 def details(request, package, **kwargs):
-    kwargs.setdefault('template_object_name','package')
-    kwargs.setdefault('queryset',Package.objects.all())
+    kwargs.setdefault('template_object_name', 'package')
+    kwargs.setdefault('queryset', Package.objects.all())
     return list_detail.object_detail(request, object_id=package, **kwargs)
 
 def simple_details(request, package, **kwargs):
@@ -30,7 +30,7 @@ def simple_details(request, package, **kwargs):
     return details(request, package, **kwargs)
 
 def doap(request, package, **kwargs):
-    kwargs.setdefault('template_name','djangopypi/package_doap.xml')
+    kwargs.setdefault('template_name', 'djangopypi/package_doap.xml')
     kwargs.setdefault('mimetype', 'text/xml')
     return details(request, package, **kwargs)
 
@@ -52,16 +52,16 @@ def manage(request, package, **kwargs):
     kwargs.setdefault('form_class', PackageForm)
     kwargs.setdefault('template_name', 'djangopypi/package_manage.html')
     kwargs.setdefault('template_object_name', 'package')
-    
+
     return create_update.update_object(request, **kwargs)
 
 @user_maintains_package()
 def manage_versions(request, package, **kwargs):
     package = get_object_or_404(Package, name=package)
-    kwargs.setdefault('formset_factory_kwargs',{})
+    kwargs.setdefault('formset_factory_kwargs', {})
     kwargs['formset_factory_kwargs'].setdefault('fields', ('hidden',))
     kwargs['formset_factory_kwargs']['extra'] = 0
-    
+
     kwargs.setdefault('formset_factory', inlineformset_factory(Package, Release, **kwargs['formset_factory_kwargs']))
     kwargs.setdefault('template_name', 'djangopypi/package_manage_versions.html')
     kwargs.setdefault('template_object_name', 'package')
@@ -70,18 +70,18 @@ def manage_versions(request, package, **kwargs):
     kwargs['extra_context'][kwargs['template_object_name']] = package
     kwargs.setdefault('formset_kwargs',{})
     kwargs['formset_kwargs']['instance'] = package
-    
+
     if request.method == 'POST':
         formset = kwargs['formset_factory'](data=request.POST, **kwargs['formset_kwargs'])
         if formset.is_valid():
             formset.save()
-            return create_update.redirect(kwargs.get('post_save_redirect',None),
+            return create_update.redirect(kwargs.get('post_save_redirect', None),
                                           package)
-    
+
     formset = kwargs['formset_factory'](**kwargs['formset_kwargs'])
-    
+
     kwargs['extra_context']['formset'] = formset
-    
+
     return render_to_response(kwargs['template_name'], kwargs['extra_context'],
                               context_instance=RequestContext(request),
                               mimetype=kwargs['mimetype'])
