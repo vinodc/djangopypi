@@ -11,11 +11,11 @@ from django.contrib.auth.models import User
 class PackageInfoField(models.Field):
     description = u'Python Package Information Field'
     __metaclass__ = models.SubfieldBase
-    
+
     def __init__(self, *args, **kwargs):
         kwargs['editable'] = False
         super(PackageInfoField,self).__init__(*args, **kwargs)
-    
+
     def to_python(self, value):
         if isinstance(value, basestring):
             if value:
@@ -27,7 +27,7 @@ class PackageInfoField(models.Field):
         if isinstance(value,MultiValueDict):
             return value
         raise ValueError('Unexpected value encountered when converting data to python')
-    
+
     def get_prep_value(self, value):
         if isinstance(value,MultiValueDict):
             return json.dumps(dict(value.iterlists()))
@@ -35,13 +35,11 @@ class PackageInfoField(models.Field):
             return json.dumps(value)
         if isinstance(value, basestring) or value is None:
             return value
-        
+
         raise ValueError('Unexpected value encountered when preparing for database')
-    
+
     def get_internal_type(self):
         return 'TextField'
-
-
 
 class Classifier(models.Model):
     name = models.CharField(max_length=255, primary_key=True)
@@ -50,10 +48,9 @@ class Classifier(models.Model):
         verbose_name = _(u"classifier")
         verbose_name_plural = _(u"classifiers")
         ordering = ('name',)
-    
+
     def __unicode__(self):
         return self.name
-
 
 class Package(models.Model):
     name = models.CharField(max_length=255, unique=True, primary_key=True,
@@ -64,7 +61,7 @@ class Package(models.Model):
                                     related_name="packages_owned")
     maintainers = models.ManyToManyField(User, blank=True,
                                          related_name="packages_maintained")
-    
+
     class Meta:
         verbose_name = _(u"package")
         verbose_name_plural = _(u"packages")
@@ -75,14 +72,14 @@ class Package(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('djangopypi-package', (), {'package': self.name})
-    
+
     @property
     def latest(self):
         try:
             return self.releases.latest()
         except Release.DoesNotExist:
             return None
-    
+
     def get_release(self, version):
         """Return the release object for version, or None"""
         try:
@@ -97,7 +94,7 @@ class Release(models.Model):
     package_info = PackageInfoField(blank=False)
     hidden = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True, editable=False)
-    
+
     class Meta:
         verbose_name = _(u"release")
         verbose_name_plural = _(u"releases")
@@ -107,23 +104,23 @@ class Release(models.Model):
 
     def __unicode__(self):
         return self.release_name
-    
+
     @property
     def release_name(self):
         return u"%s-%s" % (self.package.name, self.version)
-    
+
     @property
     def summary(self):
-        return self.package_info.get('summary',u'')
-    
+        return self.package_info.get('summary', u'')
+
     @property
     def description(self):
-        return self.package_info.get('description',u'')
-    
+        return self.package_info.get('description', u'')
+
     @property
     def classifiers(self):
         return self.package_info.getlist('classifier')
-    
+
     @models.permalink
     def get_absolute_url(self):
         return ('djangopypi-release', (), {'package': self.package.name,
@@ -143,30 +140,30 @@ class Distribution(models.Model):
     signature = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True, editable=False)
     uploader = models.ForeignKey(User, editable=False)
-    
+
     @property
     def filename(self):
         return os.path.basename(self.content.name)
-    
+
     @property
     def display_filetype(self):
         for key,value in settings.DJANGOPYPI_DIST_FILE_TYPES:
             if key == self.filetype:
                 return value
         return self.filetype
-    
+
     @property
     def path(self):
         return self.content.name
-    
+
     def get_absolute_url(self):
         return "%s#md5=%s" % (self.content.url, self.md5_digest)
-    
+
     class Meta:
         verbose_name = _(u"distribution")
         verbose_name_plural = _(u"distributions")
         unique_together = ("release", "filetype", "pyversion")
-    
+
     def __unicode__(self):
         return self.filename
 
@@ -174,7 +171,7 @@ class Review(models.Model):
     release = models.ForeignKey(Release, related_name="reviews")
     rating = models.PositiveSmallIntegerField(blank=True)
     comment = models.TextField(blank=True)
-    
+
     class Meta:
         verbose_name = _(u'release review')
         verbose_name_plural = _(u'release reviews')
