@@ -1,12 +1,12 @@
 from django.conf import settings
 from django.http import HttpResponseNotAllowed
 
-from djangopypi.models import Package, Release
+from djangopypi.decorators import csrf_exempt
 from djangopypi.http import HttpResponseNotImplemented
 from djangopypi.http import parse_distutils_request
+from djangopypi.models import Package, Release
 
-
-
+@csrf_exempt
 def root(request, fallback_view=None, **kwargs):
     """ Root view of the package index, handle incoming actions from distutils
     or redirect to a more user friendly view """
