@@ -65,6 +65,8 @@ class Package(models.Model):
     class Meta:
         verbose_name = _(u"package")
         verbose_name_plural = _(u"packages")
+        get_latest_by = "releases__latest"
+        ordering = ['name',]
 
     def __unicode__(self):
         return self.name
