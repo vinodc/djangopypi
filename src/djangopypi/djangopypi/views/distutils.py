@@ -21,7 +21,7 @@ def submit_package_or_release(user, post_data, files):
     """Registers/updates a package or release"""
     try:
         package = Package.objects.get(name=post_data['name'])
-        if package.owner != user:
+        if user not in package.owners.all():
             return HttpResponseForbidden(
                     "That package is owned by someone else!")
     except Package.DoesNotExist:
