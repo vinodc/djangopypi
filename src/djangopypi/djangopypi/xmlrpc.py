@@ -120,7 +120,7 @@ def search(spec, operator='or'):
         'summary': '',
     }
     return HttpResponse(xmlrpclib.dumps((output,), methodresponse=True))
-#
+
 def changelog(since):
     output = {
         'name': '',
