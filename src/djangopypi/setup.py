@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 def fread(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-version = '0.4.1'
+version = '0.4.2'
 
 setup(
     name='djangopypi',
@@ -37,7 +37,6 @@ setup(
     zip_safe=False,
     install_requires=[
         'setuptools',
-        'django>=1.0',
         'docutils',
     ],
 )
