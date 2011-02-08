@@ -1,12 +1,11 @@
-from django.conf import settings
 from django.contrib.auth import login, REDIRECT_FIELD_NAME
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.utils.http import urlquote
 
 try:
-    from functools import update_wrapper, wraps, WRAPPER_ASSIGNMENTS
+    from functools import wraps, WRAPPER_ASSIGNMENTS
 except ImportError:
-    from django.utils.functional import update_wrapper, wraps, WRAPPER_ASSIGNMENTS
+    from django.utils.functional import wraps, WRAPPER_ASSIGNMENTS
 
 try:
     from django.utils.decorators import available_attrs
@@ -17,19 +16,18 @@ except ImportError:
 from djangopypi.http import HttpResponseUnauthorized, login_basic_auth
 
 
-
 def basic_auth(view_func):
-    """ Decorator for views that need to handle basic authentication such as 
+    """ Decorator for views that need to handle basic authentication such as
     distutils views. """
-    
+
     def _wrapped_view(request, *args, **kwargs):
         if request.user.is_authenticated():
             return view_func(request, *args, **kwargs)
         user = login_basic_auth(request)
-        
+
         if not user:
             return HttpResponseUnauthorized('pypi')
-        
+
         login(request, user)
         if not request.user.is_authenticated():
             return HttpResponseForbidden("Not logged in, or invalid username/"
@@ -50,7 +48,7 @@ def user_owns_package(login_url=None, redirect_field_name=REDIRECT_FIELD_NAME):
         def _wrapped_view(request, package, *args, **kwargs):
             if request.user.packages_owned.filter(name=package).count() > 0:
                 return view_func(request, package=package, *args, **kwargs)
-            
+
             path = urlquote(request.get_full_path())
             tup = login_url, redirect_field_name, path
             return HttpResponseRedirect('%s?%s=%s' % tup)
@@ -59,20 +57,20 @@ def user_owns_package(login_url=None, redirect_field_name=REDIRECT_FIELD_NAME):
 
 def user_maintains_package(login_url=None, redirect_field_name=REDIRECT_FIELD_NAME):
     """
-    Decorator for views that checks whether the user maintains (or owns) the 
+    Decorator for views that checks whether the user maintains (or owns) the
     currently requested package.
     """
     if not login_url:
         from django.conf import settings
         login_url = settings.LOGIN_URL
-    
+
     def decorator(view_func):
         def _wrapped_view(request, package, *args, **kwargs):
-            if (request.user.is_authenticated() and  
-                (request.user.packages_owned.filter(name=package).count() > 0 or 
+            if (request.user.is_authenticated() and
+                (request.user.packages_owned.filter(name=package).count() > 0 or
                  request.user.packages_maintained.filter(name=package).count() > 0)):
                 return view_func(request, package=package, *args, **kwargs)
-            
+
             path = urlquote(request.get_full_path())
             tup = login_url, redirect_field_name, path
             return HttpResponseRedirect('%s?%s=%s' % tup)
