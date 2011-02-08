@@ -1,6 +1,10 @@
 from django.conf import settings
 from django.http import HttpResponseNotAllowed
-from django.views.decorators.csrf import csrf_exempt
+try:
+    from django.views.decorators.csrf import csrf_exempt
+except ImportError:
+    # Django < 1.2
+    from django.contrib.csrf.middleware import csrf_exempt
 
 from djangopypi.http import parse_distutils_request
 
