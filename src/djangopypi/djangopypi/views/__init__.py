@@ -1,16 +1,15 @@
 from django.conf import settings
 from django.http import HttpResponseNotAllowed
+from django.views.decorators.csrf import csrf_exempt
 
-from djangopypi.models import Package, Release
-from djangopypi.http import HttpResponseNotImplemented
 from djangopypi.http import parse_distutils_request
 
 
-
+@csrf_exempt
 def root(request, fallback_view=None, **kwargs):
     """ Root view of the package index, handle incoming actions from distutils
     or redirect to a more user friendly view """
-    
+
     if request.method == 'POST':
         parse_distutils_request(request)
         action = request.POST.get(':action','')
