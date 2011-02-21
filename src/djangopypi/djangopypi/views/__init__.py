@@ -1,13 +1,10 @@
 from django.conf import settings
 from django.http import HttpResponseNotAllowed
-try:
-    from django.views.decorators.csrf import csrf_exempt
-except ImportError:
-    # Django < 1.2
-    from django.contrib.csrf.middleware import csrf_exempt
 
+from djangopypi.decorators import csrf_exempt
 from djangopypi.http import parse_distutils_request
-
+from djangopypi.models import Package, Release
+from djangopypi.xmlrpc import parse_xmlrpc_request
 
 @csrf_exempt
 def root(request, fallback_view=None, **kwargs):
@@ -15,6 +12,8 @@ def root(request, fallback_view=None, **kwargs):
     or redirect to a more user friendly view """
 
     if request.method == 'POST':
+        if request.META['CONTENT_TYPE'] == 'text/xml':
+            return parse_xmlrpc_request(request)
         parse_distutils_request(request)
         action = request.POST.get(':action','')
     else:

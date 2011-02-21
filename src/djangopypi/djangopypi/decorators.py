@@ -15,6 +15,14 @@ except ImportError:
 
 from djangopypi.http import HttpResponseUnauthorized, login_basic_auth
 
+# Find us a csrf exempt decorator that'll work with Django 1.0+
+try:
+    from django.views.decorators.csrf import csrf_exempt
+except ImportError:
+    try:
+        from django.contrib.csrf.middleware import csrf_exempt
+    except ImportError:
+        def csrf_except(view_func): return view_func
 
 def basic_auth(view_func):
     """ Decorator for views that need to handle basic authentication such as

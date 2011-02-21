@@ -1,7 +1,12 @@
 import xmlrpclib
-from djangopypi.models import Package, Release
+
+from django.conf import settings
 from django.http import HttpResponseNotAllowed, HttpResponse
 from django.contrib.sites.models import Site
+
+from djangopypi.models import Package, Release
+
+
 
 SITE_NAME = Site.objects.get_current().domain
 
@@ -120,7 +125,7 @@ def search(spec, operator='or'):
         'summary': '',
     }
     return HttpResponse(xmlrpclib.dumps((output,), methodresponse=True))
-#
+
 def changelog(since):
     output = {
         'name': '',
