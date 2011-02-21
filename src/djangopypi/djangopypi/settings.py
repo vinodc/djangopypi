@@ -97,3 +97,13 @@ if not hasattr(settings,'DJANGOPYPI_ACTION_VIEWS'):
         "submit": distutils.register_or_upload, #``register`` command
         "list_classifiers": distutils.list_classifiers, #``list_classifiers`` command
     }
+
+""" These settings enable proxying of packages that are not in the local index 
+to another index, http://pypi.python.org/ by default. This feature is disabled 
+by default and can be enabled by setting DJANGOPYPI_PROXY_MISSING to True in 
+your settings file. """
+if not hasattr(settings, 'DJANGOPYPI_PROXY_BASE_URL'):
+    settings.DJANGOPYPI_PROXY_BASE_URL = 'http://pypi.python.org/simple'
+
+if not hasattr(settings, 'DJANGOPYPI_PROXY_MISSING'):
+    settings.DJANGOPYPI_PROXY_MISSING = False

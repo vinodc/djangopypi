@@ -1,10 +1,11 @@
 History
 =======
 
-0.4.2 (2011-02-08)
+0.4.2 (2011-02-21)
 ------------------
 
 * Added CSRF support for Django>=1.2
+* Added conditional support to proxy packages not indexed
 
 0.4.1 (2010-06-17)
 ------------------

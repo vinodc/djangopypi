@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db.models.query import Q
+from django.http import Http404, HttpResponseRedirect
 from django.forms.models import inlineformset_factory
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
@@ -27,7 +28,14 @@ def details(request, package, **kwargs):
 
 def simple_details(request, package, **kwargs):
     kwargs.setdefault('template_name', 'djangopypi/package_detail_simple.html')
-    return details(request, package, **kwargs)
+    try:
+        return details(request, package, **kwargs)
+    except Http404, e:
+        if settings.DJANGOPYPI_PROXY_MISSING:
+            return HttpResponseRedirect('%s/%s/' % 
+                                        (settings.DJANGOPYPI_PROXY_BASE_URL.rstrip('/'),
+                                         package))
+        raise e
 
 def doap(request, package, **kwargs):
     kwargs.setdefault('template_name', 'djangopypi/package_doap.xml')
