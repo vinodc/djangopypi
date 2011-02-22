@@ -4,7 +4,7 @@ from django.http import HttpResponseNotAllowed
 from djangopypi.decorators import csrf_exempt
 from djangopypi.http import parse_distutils_request
 from djangopypi.models import Package, Release
-from djangopypi.xmlrpc import parse_xmlrpc_request
+from djangopypi.views.xmlrpc import parse_xmlrpc_request
 
 @csrf_exempt
 def root(request, fallback_view=None, **kwargs):

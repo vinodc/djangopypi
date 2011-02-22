@@ -98,6 +98,19 @@ if not hasattr(settings,'DJANGOPYPI_ACTION_VIEWS'):
         "list_classifiers": distutils.list_classifiers, #``list_classifiers`` command
     }
 
+if not hasattr(settings,'DJANGOPYPI_XMLRPC_COMMANDS'):
+    from djangopypi.views import xmlrpc
+    
+    settings.DJANGOPYPI_XMLRPC_COMMANDS = {
+        'list_packages': xmlrpc.list_packages,
+        'package_releases': xmlrpc.package_releases,
+        'release_urls': xmlrpc.release_urls,
+        'release_data': xmlrpc.release_data,
+        #'search': xmlrpc.search, Not done yet
+        #'changelog': xmlrpc.changelog, Not done yet
+        #'ratings': xmlrpc.ratings, Not done yet
+    }
+
 """ These settings enable proxying of packages that are not in the local index 
 to another index, http://pypi.python.org/ by default. This feature is disabled 
 by default and can be enabled by setting DJANGOPYPI_PROXY_MISSING to True in 

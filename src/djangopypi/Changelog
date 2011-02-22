@@ -1,6 +1,13 @@
 History
 =======
 
+0.4.3 (2011-02-22)
+------------------
+
+* Moved xmlrpc views into views folder
+* Moved xmlrpc command settings to the settings file
+* Cleaned up xmlrpc views to remove django.contrib.sites dependency
+
 0.4.2 (2011-02-21)
 ------------------
 
