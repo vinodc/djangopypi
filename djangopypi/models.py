@@ -183,3 +183,13 @@ try:
     add_introspection_rules([], ["^djangopypi\.models\.PackageInfoField"])
 except ImportError:
     pass
+
+
+class MasterIndex(models.Model):
+    title = models.CharField(max_length=255)
+    url = models.CharField(max_length=255)
+
+class MirrorLog(models.Model):
+    master = models.ForeignKey(MasterIndex, related_name='logs')
+    created = models.DateTimeField(auto_now_add=True)
+    releases_added = models.ManyToManyField(Release, related_name='mirror_sources')
