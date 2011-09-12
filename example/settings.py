@@ -1,13 +1,16 @@
 # Django settings for example project.
 
 import os
-from os.path join, dirname
+from os.path import join, dirname
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
 
 MANAGERS = ADMINS
+
+DEBUG = True
+TEMPLATE_DEBUG = True
 
 DATABASES = {
     'default': {
@@ -66,9 +69,11 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'South',
+    'south',
     'djangopypi',
 )
+
+DJANGOPYPI_MIRRORING = True
 
 LOGGING = {
     'version': 1,
