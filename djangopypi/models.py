@@ -141,7 +141,7 @@ class Distribution(models.Model):
     comment = models.CharField(max_length=255, blank=True)
     signature = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True, editable=False)
-    uploader = models.ForeignKey(User, editable=False)
+    uploader = models.ForeignKey(User, editable=False, blank=True, null=True)
 
     @property
     def filename(self):
@@ -188,8 +188,18 @@ except ImportError:
 class MasterIndex(models.Model):
     title = models.CharField(max_length=255)
     url = models.CharField(max_length=255)
+    
+    def __unicode__(self):
+        return self.title
 
 class MirrorLog(models.Model):
     master = models.ForeignKey(MasterIndex, related_name='logs')
-    created = models.DateTimeField(auto_now_add=True)
-    releases_added = models.ManyToManyField(Release, related_name='mirror_sources')
+    created = models.DateTimeField(default='now')
+    releases_added = models.ManyToManyField(Release, blank=True,
+                                            related_name='mirror_sources')
+    
+    def __unicode__(self):
+        return '%s (%s)' % (self.master, str(self.created),)
+    
+    class Meta:
+        get_latest_by = "created"
