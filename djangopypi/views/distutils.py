@@ -134,13 +134,17 @@ def register_or_upload(request):
     for dist in release.distributions.all():
         if os.path.basename(dist.content.name) == uploaded.name:
             if settings.DJANGOPYPI_ALLOW_VERSION_OVERWRITE:
-                delete_dists.append(dist.pk)
+                delete_dists.append(dist)
             else:
                 transaction.rollback()
                 return HttpResponseBadRequest('That file has already been uploaded...')
     
     if len(delete_dists) != 0:
-        release.distributions.filter(pk__in=delete_dists).delete()
+        for dist in delete_dists:
+            # Remove file.
+            dist.content.delete()
+            # Remove entry.
+            dist.delete()
             
     md5_digest = request.POST.get('md5_digest','')
     
