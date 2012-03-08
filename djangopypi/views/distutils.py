@@ -129,13 +129,19 @@ def register_or_upload(request):
         return HttpResponse('release registered')
     
     uploaded = request.FILES.get('content')
-    
+
+    delete_dists = []
     for dist in release.distributions.all():
         if os.path.basename(dist.content.name) == uploaded.name:
-            """ Need to add handling optionally deleting old and putting up new """
-            transaction.rollback()
-            return HttpResponseBadRequest('That file has already been uploaded...')
-
+            if settings.DJANGOPYPI_ALLOW_VERSION_OVERWRITE:
+                delete_dists.append(dist.pk)
+            else:
+                transaction.rollback()
+                return HttpResponseBadRequest('That file has already been uploaded...')
+    
+    if len(delete_dists) != 0:
+        release.distributions.filter(pk__in=delete_dists).delete()
+            
     md5_digest = request.POST.get('md5_digest','')
     
     try:
