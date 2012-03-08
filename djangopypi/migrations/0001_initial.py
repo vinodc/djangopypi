@@ -73,7 +73,7 @@ class Migration(SchemaMigration):
         # Deleting model 'Release'
         db.delete_table('djangopypi_release')
 
-        # Removing unique constraint on 'Release', fields ['project', 'version', 'platform', 'distribution', 'pyversion']
+        # Removing unique constraint on 'Release', fields ['project_id', 'version', 'platform', 'distribution', 'pyversion']
         db.delete_unique('djangopypi_release', ['project_id', 'version', 'platform', 'distribution', 'pyversion'])
     
     

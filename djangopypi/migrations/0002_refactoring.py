@@ -62,6 +62,9 @@ class Migration(SchemaMigration):
         ))
         db.create_unique('djangopypi_package_maintainers', ['package_id', 'user_id'])
 
+        # Removing unique constraint on 'Release', fields ['project_id', 'version', 'platform', 'distribution', 'pyversion']
+        db.delete_unique('djangopypi_release', ['project_id', 'version', 'platform', 'distribution', 'pyversion'])
+
         # Deleting field 'Classifier.id'
         db.delete_column('djangopypi_classifier', 'id')
 
@@ -105,10 +108,7 @@ class Migration(SchemaMigration):
         db.add_column('djangopypi_release', 'hidden', self.gf('django.db.models.fields.BooleanField')(default=False, blank=True), keep_default=False)
 
         # Adding field 'Release.created'
-        db.add_column('djangopypi_release', 'created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, default='', blank=True), keep_default=False)
-
-        # Removing unique constraint on 'Release', fields ['project', 'platform', 'distribution', 'version', 'pyversion']
-        db.delete_unique('djangopypi_release', ['project_id', 'platform', 'distribution', 'version', 'pyversion'])
+        db.add_column('djangopypi_release', 'created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, default=None, blank=True), keep_default=False)
 
         # Adding unique constraint on 'Release', fields ['version', 'package']
         db.create_unique('djangopypi_release', ['version', 'package_id'])
@@ -157,7 +157,7 @@ class Migration(SchemaMigration):
         db.delete_table('djangopypi_package_maintainers')
 
         # Adding field 'Classifier.id'
-        db.add_column('djangopypi_classifier', 'id', self.gf('django.db.models.fields.AutoField')(default='', primary_key=True), keep_default=False)
+        db.add_column('djangopypi_classifier', 'id', self.gf('django.db.models.fields.AutoField')(primary_key=True), keep_default=False)
 
         # Changing field 'Classifier.name'
         db.alter_column('djangopypi_classifier', 'name', self.gf('django.db.models.fields.CharField')(max_length=255, unique=True))
@@ -201,8 +201,8 @@ class Migration(SchemaMigration):
         # Deleting field 'Release.created'
         db.delete_column('djangopypi_release', 'created')
 
-        # Adding unique constraint on 'Release', fields ['project', 'platform', 'distribution', 'version', 'pyversion']
-        db.create_unique('djangopypi_release', ['project_id', 'platform', 'distribution', 'version', 'pyversion'])
+        # Adding unique constraint on 'Release', fields ['project_id', 'platform', 'distribution', 'version', 'pyversion']
+        db.create_unique('djangopypi_release', ['project_id', 'version', 'platform', 'distribution', 'pyversion'])
 
         # Removing unique constraint on 'Release', fields ['version', 'package']
         db.delete_unique('djangopypi_release', ['version', 'package_id'])
